@@ -3,7 +3,7 @@
 **相关滤波跟踪器：**
 CF在图像的引入--MOSSE 《visual object tracking using adaptive correlation filters》
 通过滤波模板实现目标图像和搜索图像之间的消息传递。通过找到一个滤波模板h，与输入图像f求相关性，得到相关图g。相关图g描述目标响应，越接近目标图像响应值越大。
-$g=f\bigotimes h$
+$$g=f\bigotimes h$$
 为了加快计算速度，引入傅里叶变化，函数互相关的傅里叶变化等于函数傅里叶变换的乘积：
 $$F(g)=F(f\bigotimes h)=F(f)F(h)^*$$
 
@@ -24,13 +24,13 @@ $$F(g)=F(f\bigotimes h)=F(f)F(h)^*$$
 假设视频中所有帧之间以及不同视频之间的外观变化速率恒定。在实践中，对象模板的更新要求对于不同的跟踪情况有很大的不同，这取决于运动、模糊或反向等外部因素的复杂组合。因此，简单的线性更新往往不足以应付不断变化的更新需求，并推广到所有可能遇到的情况。 此外，这种更新在所有空间维度上也是恒定的，这不允许局部部分更新。 这在部分遮挡等情况下尤其具有破坏性，在这些情况下只需要更新模板的某一部分。 最后，过度依赖初始模板可能会遭受灾难性漂移并无法从跟踪失败中恢复。
 
 - 使用简单的线性插值来更新每个帧中的模板：
-《Visual object tracking using adaptive correlation filters》CVPR 2010
-《High-speed tracking with kernelized correlation filters》 TPAMI 2015
+《Visual object tracking using adaptive correlation filters》CVPR 2010  
+《High-speed tracking with kernelized correlation filters》 TPAMI 2015  
 《Learning spatially regularized correlation
-filters for visual tracking》ICCV 2015
-《Learning background-aware correlation filters for visual tracking》ICCV 2017
+filters for visual tracking》ICCV 2015  
+《Learning background-aware correlation filters for visual tracking》ICCV 2017  
 《Context-aware deep feature compression
-for high-speed visual tracking》CVPR 2018
+for high-speed visual tracking》CVPR 2018  
 
 用固定的更新计划会导致模板更加关注最近的帧，忘记对象的历史外观，把历史帧的子集作为训练样本会产生更好的效果，如《Beyond correlation filters: Learning continuous convolution operators for visual tracking》ECCV, 2016
 
