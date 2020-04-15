@@ -3,7 +3,7 @@
 **相关滤波跟踪器：**
 CF在图像的引入--MOSSE 《visual object tracking using adaptive correlation filters》
 通过滤波模板实现目标图像和搜索图像之间的消息传递。通过找到一个滤波模板h，与输入图像f求相关性，得到相关图g。相关图g描述目标响应，越接近目标图像响应值越大。
-$$g=f\bigotimes h$$
+$g=f\bigotimes h$
 为了加快计算速度，引入傅里叶变化，函数互相关的傅里叶变化等于函数傅里叶变换的乘积：
 $$F(g)=F(f\bigotimes h)=F(f)F(h)^*$$
 
