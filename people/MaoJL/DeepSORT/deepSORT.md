@@ -11,7 +11,7 @@ Deep Sort是MOT中属于tracking-by-detection 类的跟踪方法，在Sort目标
 - T2时刻物体检测BBox总共有4个（黑色），预测T2时刻物体跟踪的BBox（紫色）有1个，解决紫色物体跟踪BBox如何与黑色物体检测BBox关联的算法，就是SORT物体跟踪算法要解决的核心问题。
 - SORT关联两个BBox的核心算法是：用IOU计算Bbox之间的距离 + 匈牙利算法选择最优关联结果。 
 
-![](DeepSORT/1.jpg)
+![](img/1.jpg)
 
 在目标跟踪中主要包括物体检测与物体跟踪两大部分：
 物体检测是对每一帧图片检测出目标物体的坐标位置；物体跟踪是把物体跟踪预测的BBox与物体检测的BBox关联，然后用对应的物体检测BBox代表成功跟踪的BBox结果。
@@ -40,12 +40,12 @@ T3时刻如果被追踪的物体发生了遮挡(红框BBox的物体)，那么要
 
 #### 什么是卡尔曼滤波？
 	卡尔曼滤波可以对物体下一步的走向做出有根据的预测，即使伴随着各种干扰，卡尔曼滤波总能指出最真实发生的情况。
-![](DeepSORT/2.jpg)
+![](img/2.jpg)
 
  其实SORT算法实在卡尔曼滤波的基础上+匈牙利算法将<font color="red">卡尔曼滤波预测的BBOX</font>与<font color="blue">物体检测BBOX</font>进行了匹配，选择了合适的<font color="blue">物体检测BBOX</font>作为下一时刻的<font color="red">物体跟踪bbox</font>。
 
 	（卡尔曼滤波预测的BBOX只是作一个参考作用，根据这个预测的BBOX找到和它最接近的BBOX作为轨迹的下一帧所在的位置）
-![](DeepSORT/3.jpg)
+![](img/3.jpg)
 
 ## Deep SORT
 
@@ -70,7 +70,7 @@ T3时刻如果被追踪的物体发生了遮挡(红框BBox的物体)，那么要
 
 #### 运动匹配度
 用Mahalanobis距离（马氏距离）来表示第j个检测和第i条轨迹之间的运动匹配程度。
-![](DeepSORT/4.jpg)
+![](img/4.jpg)
 
 dj表示第j个detection的状态(u, v, γ, h) ;
 
