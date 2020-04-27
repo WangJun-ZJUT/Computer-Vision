@@ -11,7 +11,7 @@ Deep Sort是MOT中属于tracking-by-detection 类的跟踪方法，在Sort目标
 - T2时刻物体检测BBox总共有4个（黑色），预测T2时刻物体跟踪的BBox（紫色）有1个，解决紫色物体跟踪BBox如何与黑色物体检测BBox关联的算法，就是SORT物体跟踪算法要解决的核心问题。
 - SORT关联两个BBox的核心算法是：用IOU计算Bbox之间的距离 + 匈牙利算法选择最优关联结果。 
 
-![](img/1.jpg)
+![](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/1.jpg)
 
 在目标跟踪中主要包括物体检测与物体跟踪两大部分：
 物体检测是对每一帧图片检测出目标物体的坐标位置；物体跟踪是把物体跟踪预测的BBox与物体检测的BBox关联，然后用对应的物体检测BBox代表成功跟踪的BBox结果。
