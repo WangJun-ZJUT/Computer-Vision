@@ -40,12 +40,12 @@ T3时刻如果被追踪的物体发生了遮挡(红框BBox的物体)，那么要
 
 #### 什么是卡尔曼滤波？
 	卡尔曼滤波可以对物体下一步的走向做出有根据的预测，即使伴随着各种干扰，卡尔曼滤波总能指出最真实发生的情况。
-![](img/2.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/2.jpg)
 
  其实SORT算法实在卡尔曼滤波的基础上+匈牙利算法将<font color="red">卡尔曼滤波预测的BBOX</font>与<font color="blue">物体检测BBOX</font>进行了匹配，选择了合适的<font color="blue">物体检测BBOX</font>作为下一时刻的<font color="red">物体跟踪bbox</font>。
 
 	（卡尔曼滤波预测的BBOX只是作一个参考作用，根据这个预测的BBOX找到和它最接近的BBOX作为轨迹的下一帧所在的位置）
-![](img/3.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/3.jpg)
 
 ## Deep SORT
 
@@ -70,7 +70,7 @@ T3时刻如果被追踪的物体发生了遮挡(红框BBox的物体)，那么要
 
 #### 运动匹配度
 用Mahalanobis距离（马氏距离）来表示第j个检测和第i条轨迹之间的运动匹配程度。
-![](img/4.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/4.jpg)
 
 dj表示第j个detection的状态(u, v, γ, h) ;
 
@@ -79,7 +79,7 @@ yi是轨迹在当前时刻的预测观测量（kalman滤波预测得到的）；
 Si是表示检测位置与平均追踪位置之间的协方差矩阵，由kalman滤波器预测得到的；
 
 考虑到运动的连续性，可以通过该马氏距离对detections进行筛选，文中使用卡方分布的0.95分位点作为阈值，如果马氏距离小于该阈值，代表成功匹配。定义如下示性函数：
-![](DeepSORT/5.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/5.jpg)
 
 #### 表观匹配度
 
@@ -88,13 +88,13 @@ Si是表示检测位置与平均追踪位置之间的协方差矩阵，由kalman
 对于每一个detection，包括轨迹中的detections，使用reid模型抽出得到一个128维的特征向量||r||，然后使用detection和轨迹包含的detections的特征向量之间的最小余弦距离作为detection和track之间的表观匹配程度。
 
 当然轨迹太长导致表观产生变化，在使用这种最小距离作为度量就有风险， 所以文中只对轨迹的最新的  之内detections进行计算最小余弦距离。
-![](DeepSORT/6.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/6.jpg)
 
-![](DeepSORT/7.jpg)计算的是余弦相似度，而余弦距离=1-余弦相似度，范围是[0,2]。
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/7.jpg)计算的是余弦相似度，而余弦距离=1-余弦相似度，范围是[0,2]。
 
 
 #### 综合匹配度——通过运动模型和外观模型的加权得到
-![](DeepSORT/8.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/8.jpg)
 
 其中 是超参数，用于调整不同项的权重。
 
@@ -105,7 +105,7 @@ Si是表示检测位置与平均追踪位置之间的协方差矩阵，由kalman
 当一个目标被遮挡很长时间，Kalman滤波的不确定性就会大大增加，在计算马氏距离的时候，用到的是Kalman滤波协方差的倒数，连续的预测不更新就会导致这个空间协方差越来越大，因此，马氏距离值会增加。比如：现在有两条轨迹竞争同一个detection，那么那条遮挡时间长的往往得到马氏距离更小，使detection倾向于分配给丢失时间更长的轨迹，但是直观上，该detection应该分配给时间上最近的轨迹。
 为了解决该问题，论文采用级联匹配的策略来提高匹配精度,它优先于更常见的对象。这样每次分配的时候考虑的都是遮挡时间相同的轨迹，就不存在上面说的问题了。具体的算法如下:
 
-![](DeepSORT/9.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/9.jpg)
 
 T是物体跟踪集合
 
@@ -128,14 +128,14 @@ D是物体检测集合
 
 然后使用该预训练网络作为基础网络，构建wide ResNet，用来提取bounding box的表观特征，网络结构如下：
 
-![](DeepSORT/10.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/10.jpg)
 
 该网络在Nvidia GeForce GTX 1050 mobile GPU下提出32个bounding boxes大约花费30ms，显然可以满足实时性要求。
 
 ## 实验
 ### 实验设置和实验结果
 实验是在MOT16数据集上跑的，使用的detections并非公共检测结果。而是参考文献1中提供的检测结果. 实验结果如下表所示。
-![](DeepSORT/11.jpg)
+![image](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/11.jpg)
 
 
 ## 结论
@@ -143,6 +143,6 @@ D是物体检测集合
 - 1.相对于没使用深度表观特征的原始sort方法，IDSw下降了约45%，可见该深度表观特征的有效性。
 - 2.由于表观特征的使用，使轨迹因遮挡导致的motion 信息没用时不至于错误分配detection，使得ML更少，MT更多。
 - 3.该方法存在的一个问题使FP太大，论文中分析原因有两点。一方面是detections问题，另一方面是轨迹最大允许丢失匹配的帧数太大导致很多假性目标被分配到轨迹中。提高detections的置信度可以显著提升性能。
-- 4.速度够快，20Hz
+- 4.速度快，20Hz
 
 
