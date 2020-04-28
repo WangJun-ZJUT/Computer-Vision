@@ -67,7 +67,7 @@ z^1, & otherwise
 ![Template update](assert/DROL_5.png)
 
 ### 3. Experiment
-![Results of OTB2015 and VOT2018](assert/DROL_4.png)
+![Results of OTB2015 and VOT2018](../assert/DROL_4.png)
 VOT2018-LT: Pre 0.687, Re 0.650
 UAV123: AUC 0.652, Pr 0.855
 TrackingNet: AUC 0.746, Pr 0.708, NPr 0.817
