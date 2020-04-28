@@ -15,24 +15,24 @@ Three Siamese baselines: SiamFC、SiamRPN++、SiamMask。
 
 ### 2. Proposed Method
 跟踪可以视为找到一个最佳位置使下列算式的值最小：
-$$L(w)=\sum^m_{j=1}r(f(x_j;w),y_j)+\sum_k\lambda_k||w_k||^2$$
+$$ L(w)=\sum^m_{j=1}r(f(x_j;w),y_j)+\sum_k\lambda_k||w_k||^2 $$
 ![framework](assert/DROL_1.png)
 
 #### 2.1 Siamese Matching Subnet
 基于孪生网络的分类：
-$$f_M^{cls}(x,z)=\phi(x)*\phi(z)+b$$
+$$ f_M^{cls}(x,z)=\phi(x)*\phi(z)+b $$
 
 基于孪生网络的回归with different heads：
 - SiamFC:
-$$f_M^{reg-fc}(x,z)=\phi(x)*\phi(\hat{z}),\hat{z}∈\{z^i|i=1,2,3\}$$
+$$ f_M^{reg-fc}(x,z)=\phi(x)*\phi(\hat{z}),\hat{z}∈\{z^i|i=1,2,3\} $$
 - RPN head(SiamRPN++):
-$$f_M^{reg-box}(x,z)=[\phi(x)]^{reg-box}*[\phi(z)]^{reg-box}$$
+$$ f_M^{reg-box}(x,z)=[\phi(x)]^{reg-box}*[\phi(z)]^{reg-box} $$
 - Mask head(SiamMask):
-$$f_M^{reg-mask}(x,z)=[\phi(x)]^{reg-mask}*[\phi(z)]^{reg-mask}$$
+$$ f_M^{reg-mask}(x,z)=[\phi(x)]^{reg-mask}*[\phi(z)]^{reg-mask} $$
 
 #### 2.2 Discriminative Online Classification
 L2 Loss：
-$$r_C(f,y_i)=||f_C-y_i||^2$$
+$$ r_C(f,y_i)=||f_C-y_i||^2 $$
 空间和通道上的数据不平衡降低了模型的区分能力，因此用在线训练的attention，是分类器在搜索区域中注重潜在目标所在的位置。
 为了保证跟踪的速度，轻量的在线分类子网络用了3层卷积神经网络。
 ![online classfication subnet](assert/DROL_2.png)
@@ -40,14 +40,14 @@ $$r_C(f,y_i)=||f_C-y_i||^2$$
 
 牛顿高斯下降（Newton-Gaussian descent ）比随机梯度下降更适合在线学习，由于收敛速度比较快。
 梯度公式：
-$$\frac{\partial L_C(w)}{\partial w}=\sum^m_{j=1} \frac{\partial f_C(w)}{\partial w}(f(x_j)-y_j)+\sum_k\lambda_kw_k$$
-$$L_w=||r(w)||^2,r_j(w)=f(x_j)-y_j$$
+$$ \frac{\partial L_C(w)}{\partial w}=\sum^m_{j=1} \frac{\partial f_C(w)}{\partial w}(f(x_j)-y_j)+\sum_k\lambda_kw_k $$
+$$ L_w=||r(w)||^2,r_j(w)=f(x_j)-y_j $$
 
 $\varphi^s$和$\varphi^c$分别是空间注意力和通道注意力。$\varphi^s$经过全局平均池化和两个全连接层得到，$\varphi^c$经通道平均化后再用softmax。
 
 分类器的得分图用三插值还原成siam matching network的分类图的大小。
 两部分的分类图加权结合：
-$$\tilde{f}_C(x;w)=\lambda f_C(x;w)+(1-\lambda)f_M^{cls}(x,z;w)$$
+$$ \tilde{f}_C(x;w)=\lambda f_C(x;w)+(1-\lambda)f_M^{cls}(x,z;w) $$
 
 **Online learning**
 用第一帧经过数据增强后（产生30个初始训练样本），初始化整个分类器，尺寸为255×255。对后续帧来说，前两个层保持固定，只有第三个卷积层会更新。
