@@ -60,32 +60,23 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 
 ********************************************************************************【示例】  ***************************************************************
 
-# //////////////////////////////////////第1帧///////////////////////////////////////
+# /////////////////第1帧///////////////////
 
 ##1. 对检测框进行筛选
 
 只保留检测框的h大于min height，.且 检测框的置信度大于min_ confidence 的，并利用NMS去除重叠率较大的ｂｂｏｘ。
 第１帧中剩下了９个检测框：
 
-> boxes:[x,y,w,h]:
-> 
- [[298. 189.  29.  72.]
-> 
- [144. 187.  33.  72.]
-> 
- [347. 184.  35.  89.]
-> 
- [223. 197.  29.  61.]
-> 
- [120. 194.  28.  66.]
-> 
- [502. 187.  38.  87.]
-> 
- [415. 192.  34.  79.]
-> 
- [441. 188.  29.  77.]
-> 
- [484. 199.  26.  71.]]
+	boxes:[x,y,w,h]:
+	 [[298. 189.  29.  72.]
+	 [144. 187.  33.  72.]
+	 [347. 184.  35.  89.]
+	 [223. 197.  29.  61.]
+	 [120. 194.  28.  66.]
+	 [502. 187.  38.  87.]
+	 [415. 192.  34.  79.]
+	 [441. 188.  29.  77.]
+	 [484. 199.  26.  71.]]
 
 ## 2.跟踪
  
@@ -197,7 +188,7 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 
 其实第一帧除了利用每个检测结果创建了其对应的track以外，没有其他操作。
 
-# //////////////////////////////////////第2帧///////////////////////////////////////
+# /////////////////第2帧///////////////
 
 ## 1. 检测并筛选
 第二帧筛选得到了８个检测框：
@@ -265,9 +256,9 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
         detections, iou_track_candidates, unmatched_detections)
 
 当前iou_track_candidates有９（上一帧９＋前几帧０）个，还没match的有８个：
-> iou_track_candidates: [0, 1, 2, 3, 4, 5, 6, 7, 8]
-> 
-> unmatched_detections: [0, 1, 2, 3, 4, 5, 6, 7]
+
+	iou_track_candidates: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+	unmatched_detections: [0, 1, 2, 3, 4, 5, 6, 7]
 
 ＃　首先计算这些box两两之间的ｉｏｕ，经过１－ｉｏｕ得到ｃｏｓｔ——matrix：
 
@@ -276,31 +267,24 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 	cost_matrix[row, :] = 1. - iou(bbox, candidates)
 
 cost_matrix：
-![cost_matrix](DeepSORT/001.jpg)
+![cost_matrix](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/001.jpg)
  
 
 程序中把ｃｏｓｔ大于阈值（０.７）的，都设置成了０.７.
- ![cost_matrix](DeepSORT/002.jpg)
+ ![cost_matrix](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/002.jpg)
 
 
 然后把cost_matrix作为匈牙利算法的输入，得到线性匹配结果：
 	indices = linear_assignment(cost_matrix)
 
-> indices: [[0 0]
-> 
- [1 1]
-> 
- [2 2]
-> 
- [3 5]
-> 
- [4 3]
-> 
- [5 6]
-> 
- [6 4]
-> 
- [7 7]]
+	indices: [[0 0]
+	 [1 1]
+	 [2 2]
+	 [3 5]
+	 [4 3]
+	 [5 6]
+	 [6 4]
+	 [7 7]]
 
 注意：如果某个组合的ｃｏｓｔ值大于阈值，这样的组合还是认为是不match的，相应的，还会把组合中的检测框和跟踪框都踢到各自的unmatch列表中。
 
@@ -426,34 +410,23 @@ unmatched_detections: []
 同样，这帧的结果还未得到确认，所以不会吧tracker的结果输出到ｔｘｔ中，未确认的tracker的结果不会画在图上，所以第二帧只能看到检测结果（画出ｂｏｘ框，但是不会有id标号）
 
 
-# //////////////////////////////////////第3帧///////////////////////////////////////
+# ///////////////////第3帧/////////////////
 ## 1. 检测并筛选
 
 得到第三帧有１１个检测框：
  
-> boxes:[x,y,w,h]:
-> 
- [[296. 188.  31.  77.]
-> 
- [148. 187.  33.  76.]
-> 
- [508. 188.  37.  92.]
-> 
- [419. 193.  35.  79.]
-> 
- [122. 194.  28.  67.]
-> 
- [357. 189.  39.  87.]
-> 
- [217. 195.  26.  64.]
-> 
- [443. 190.  30.  79.]
-> 
- [237. 201.  19.  48.]
-> 
- [324. 204.  19.  48.]
-> 
- [488. 198.  32.  78.]]
+	boxes:[x,y,w,h]:
+	 [[296. 188.  31.  77.]
+	 [148. 187.  33.  76.]
+	 [508. 188.  37.  92.]
+	 [419. 193.  35.  79.]
+	 [122. 194.  28.  67.]
+	 [357. 189.  39.  87.]
+	 [217. 195.  26.  64.]
+	 [443. 190.  30.  79.]
+	 [237. 201.  19.  48.]
+	 [324. 204.  19.  48.]
+	 [488. 198.  32.  78.]]
 
 当前有８个trk，还没有完成confirm（击中次数还没达到３），状态都还是tentative：
 
@@ -471,11 +444,9 @@ unmatched_detections: []
 
 （１）将已经存在的tracker分为confirmed　trackers　和　unconfirmed　trackers。
 
-> confirmed_tracks: []
-> 
-unconfirmed_tracks: [0, 1, 2, 3, 4, 5, 6, 7]
-> 
-self.tracks: 8
+	confirmed_tracks: []
+	unconfirmed_tracks: [0, 1, 2, 3, 4, 5, 6, 7]
+	self.tracks: 8
 
 （２）针对之前的confirmed　trackers，将它们与当前的检测结果进行级联匹配。
 
@@ -487,9 +458,8 @@ self.tracks: 8
 
 当前iou_track_candidates有８（上一帧８＋前几帧０）个，还没match的有３个：
 　
-> iou_track_candidates: [0, 1, 2, 3, 4, 5, 6, 7]
-> 
-unmatched_detections: [8, 9, 10]
+	iou_track_candidates: [0, 1, 2, 3, 4, 5, 6, 7]
+	unmatched_detections: [8, 9, 10]
 
 - 首先计算这些ｂｏｘ两两之间的ｉｏｕ，经过１－ｉｏｕ得到cost_matrix：
 
@@ -594,8 +564,8 @@ unmatched_detections: [8, 9, 10]
 		    self.samples = {k: self.samples[k] for k in active_targets}
 
 因为当前帧不仅有检测结果，还有已经确认的trk,这些trk的跟踪结果也会画在图上(有11个)。同时，已经确认的trk的跟踪结果也会保存在txt中。.
-![frame03](DeepSORT/003.jpg)  
-![txt03](DeepSORT/004.jpg)
+![frame03](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/003.jpg)  
+![txt03](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/004.jpg)
  
 
  
@@ -942,9 +912,9 @@ unmatched_detections: [8, 9, 10]
 因为当前帧不仅有检测结果，还有已经确认的trk,这些trk的跟踪结果也会画在图上(有11个)。同时，已经确认的trk的跟踪结果也会保存在txt中。.
 
  因为当前帧不仅有检测结果，还有已经确认的trk,这些trk的跟踪结果也会画在图上(有11个)。同时，已经确认的trk的跟踪结果也会保存在txt中。
-![frame04](DeepSORT/005.jpg)
+![frame04](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/005.jpg)
 
-![txt04](DeepSORT/006.jpg)
+![txt04](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/006.jpg)
 
 
  
