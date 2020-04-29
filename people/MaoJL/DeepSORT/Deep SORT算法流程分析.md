@@ -88,7 +88,7 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 
 确认track的各种状态正常，因为第一帧还没有tracker，所以没有进行状态检查操作。
 > tracker.predict()
-    
+```python
 	def __init__(self, metric, max_iou_distance=0.7, max_age=30, n_init=3):
 		self.metric = metric
         self.max_iou_distance = max_iou_distance
@@ -99,7 +99,8 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
         self.tracks = []
         # print('*******************self.tracks：',self.tracks)
         self._next_id = 1
-
+```
+```python
     def predict(self):
         """Propagate track state distributions one time step forward.
 
@@ -108,7 +109,7 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
         # print('---------------------------track',self.tracks)
         for track in self.tracks:
             track.predict(self.kf)    
-
+```
 ### 2.3 利用检测结果更新tracker  
 	tracker.update(detections)
 (1) 获取前后两帧的匹配状态：
