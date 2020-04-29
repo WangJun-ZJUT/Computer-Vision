@@ -32,9 +32,9 @@
 - 在cost matrix中，进行运动信息约束。对每个trk， 计算其预测结果和检测结果之间的马氏距离，并将cost_ matrix中，相应的trk的马氏距离大于阈值(gating_ threshold)的值置为无穷大。
 - 将经由max_ distance 处理之后的cost matix 作为匈牙利算法的输入，得到线性匹配结果，并去除差距较大的匹配对。
 
-（３）unconfirmed tracks和②中没有匹配的tracker (unmatched tracks_ a)一起组成iou track candidates,与还没有匹配.上的检测结果(unmatched detections) 进行IOU匹配。缓解因为表观突变或者部分遮挡导致的较大变化。这样做也有可能导致一些新产生的轨迹被连接到了一些旧的轨迹上。
+（３）unconfirmed tracks和(2)中没有匹配的tracker (unmatched tracks_ a)一起组成iou track candidates,与还没有匹配.上的检测结果(unmatched detections) 进行IOU匹配。缓解因为表观突变或者部分遮挡导致的较大变化。这样做也有可能导致一些新产生的轨迹被连接到了一些旧的轨迹上。
 
-（４）合并②和③的结果，得到最终的匹配结果。（match，unmatched_tracks,unmatched_detections）
+（４）合并(2)和(3)的结果，得到最终的匹配结果。（match，unmatched_tracks,unmatched_detections）
 
 ### ２.３根据匹配情况进行后续相应操作
 （１）针对match的，要用检测结果去更新相应的tracker的参数;
@@ -87,7 +87,9 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 ### 2.2 匹配
 
 确认track的各种状态正常，因为第一帧还没有tracker，所以没有进行状态检查操作。
-> tracker.predict()
+```python
+	tracker.predict()
+```
 ```python
 	def __init__(self, metric, max_iou_distance=0.7, max_age=30, n_init=3):
 		self.metric = metric
@@ -111,7 +113,9 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
             track.predict(self.kf)    
 ```
 ### 2.3 利用检测结果更新tracker  
+```python
 	tracker.update(detections)
+```
 (1) 获取前后两帧的匹配状态：
 
 	matches, unmatched_tracks, unmatched_detections = self._match(detections)
