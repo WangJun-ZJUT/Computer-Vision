@@ -87,7 +87,6 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 ### 2.2 匹配
 
 确认track的各种状态正常，因为第一帧还没有tracker，所以没有进行状态检查操作。
-
 ```python
 	tracker.predict()
 ```
@@ -118,7 +117,6 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 	tracker.update(detections)
 ```
 (1) 获取前后两帧的匹配状态：
-
 ```python
 	matches, unmatched_tracks, unmatched_detections = self._match(detections)
 	／／输出匹配状态，前一帧未匹配的ｔｒａｃｋｓ，当前帧未匹配的detection
@@ -146,7 +144,6 @@ def _initiate_track(self, detection):
 ```
 
 注意：每个tracker在创建时，它的状态都是tentative。
-
 ```python	
     def __init__(self, mean, covariance, track_id, n_init, max_age,feature=None):
         self.mean = mean                # 初始的mean
@@ -228,15 +225,13 @@ def _initiate_track(self, detection):
 
 ### ２.２匹配
 #### ２.２.１　检测结果和预测结果的匹配。
- 
 ```python
 	matches, unmatched_tracks, unmatched_detections = self._match(detections)
 ```
  
 步骤：
 
-（１）将已经存在的tracker分为confirmed　trackers　和　unconfirmed　trackers。
- 
+（１）将已经存在的tracker分为confirmed　trackers　和　unconfirmed　trackers。 
 ```python
 	confirmed_tracks = [i for i, t in enumerate(self.tracks) if t.is_confirmed()]
 	unconfirmed_tracks = [i for i, t in enumerate(self.tracks) if not t.is_confirmed()]
@@ -249,8 +244,7 @@ def _initiate_track(self, detection):
 	confirmed_tracks: []
 	unconfirmed_tracks: [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
-（２）针对之前的confirmed　trackers，将它们与当前的检测结果进行级联匹配。
- 
+（２）针对之前的confirmed　trackers，将它们与当前的检测结果进行级联匹配。 
 ```python
 	# Associate confirmed tracks using appearance features.
 	matches_a, unmatched_tracks_a, unmatched_detections = \
@@ -284,7 +278,6 @@ def _initiate_track(self, detection):
 	unmatched_detections: [0, 1, 2, 3, 4, 5, 6, 7]
 
 ＃　首先计算这些box两两之间的ｉｏｕ，经过１－ｉｏｕ得到ｃｏｓｔ——matrix：
- 
 ```python
 	bbox = tracks[track_idx].to_tlwh()
 	candidates = np.asarray([detections[i].tlwh for i in detection_indices])
