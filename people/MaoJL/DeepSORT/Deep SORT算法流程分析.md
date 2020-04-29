@@ -26,8 +26,8 @@
 
 (注意，已经确认的trk连续max_ age帧(30 帧)没能匹配检测结果才会删除。所以，那种状态为confirmed,但却已经好多帧没有匹配到检测结果的trk是存在于deep sort中的。)
 
->遍历: (最后合并匹配结果)
->
+遍历: (最后合并匹配结果)
+
 - 计算当前帧每个新检测结果的深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵cost matrix。(取最小值作为该trk与检测结果之间的计算值。)
 - 在cost matrix中，进行运动信息约束。对每个trk， 计算其预测结果和检测结果之间的马氏距离，并将cost_ matrix中，相应的trk的马氏距离大于阈值(gating_ threshold)的值置为无穷大。
 - 将经由max_ distance 处理之后的cost matix 作为匈牙利算法的输入，得到线性匹配结果，并去除差距较大的匹配对。
@@ -87,6 +87,7 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 ### 2.2 匹配
 
 确认track的各种状态正常，因为第一帧还没有tracker，所以没有进行状态检查操作。
+
 ```python
 	tracker.predict()
 ```
@@ -118,9 +119,10 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 ```
 (1) 获取前后两帧的匹配状态：
 
+```python
 	matches, unmatched_tracks, unmatched_detections = self._match(detections)
 	／／输出匹配状态，前一帧未匹配的ｔｒａｃｋｓ，当前帧未匹配的detection
-
+```
 因第一帧不存在tracker，因此所有的检测都匹配不到，输出为：
 
 	输出：
@@ -131,19 +133,21 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 初始化ｋａｌｍａｎ滤波的一系列运动变量:
 
 （_next_id += 1：多一个tracker，id也就多一个）
-
+```python
 	for detection_idx in unmatched_detections:
     self._initiate_track(detections[detection_idx])
-	--------------------------------------------------
-	
+```
+```python	
 	def _initiate_track(self, detection):
     mean, covariance = self.kf.initiate(detection.to_xyah())
     self.tracks.append(Track(
         mean, covariance, self._next_id, self.n_init, self.max_age,
         detection.feature))
+```
 
 注意：每个tracker在创建时，它的状态都是tentative。
-	
+
+```python	
 	    def __init__(self, mean, covariance, track_id, n_init, max_age,
                  feature=None):
         self.mean = mean                # 初始的mean
@@ -157,14 +161,17 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
         self.features = []
         if feature is not None:
             self.features.append(feature)   # 相应的det特征存入特征库中
-		---------------------------------------------------------------
+```
+```python
 		class TrackState:
 
     		Tentative = 1
     		Confirmed = 2
     		Deleted = 3
-此时第一帧的tracker已经创建，其结果与第一帧的检测结果一样。因为tracker的结果还未得到确认，所以不会把tracker的结果输出到txt中。
+```
 
+此时第一帧的tracker已经创建，其结果与第一帧的检测结果一样。因为tracker的结果还未得到确认，所以不会把tracker的结果输出到txt中。
+```python
 	# Store results.
 	for track in tracker.tracks:
     if not track.is_confirmed() or track.time_since_update > 1:
@@ -172,8 +179,10 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
     bbox = track.to_tlwh()
     results.append([
         frame_idx, track.track_id, bbox[0], bbox[1], bbox[2], bbox[3]])
-同时，未确认的tracker的结果不会画在图上，所以第一帧只能看到检测结果（画出ｂｏｘ框，但是不会有id标号）。
+```
 
+同时，未确认的tracker的结果不会画在图上，所以第一帧只能看到检测结果（画出ｂｏｘ框，但是不会有id标号）。
+```python
 	def draw_trackers(self, tracks):
     self.viewer.thickness = 2
     for track in tracks:
@@ -182,7 +191,8 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
         self.viewer.color = create_unique_color_uchar(track.track_id)
         self.viewer.rectangle(
             *track.to_tlwh().astype(np.int), label=str(track.track_id))
-	-------------------------------------------------------------------
+```
+```python
 	 def draw_trackers(self, tracks):
         self.viewer.thickness = 2
         for track in tracks:
@@ -191,6 +201,7 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
             self.viewer.color = create_unique_color_uchar(track.track_id)
             self.viewer.rectangle(
                 *track.to_tlwh().astype(np.int), label=str(track.track_id))
+```
 
 其实第一帧除了利用每个检测结果创建了其对应的track以外，没有其他操作。
 
@@ -243,6 +254,7 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
     linear_assignment.matching_cascade(
         gated_metric, self.metric.matching_threshold, self.max_age,
         self.tracks, detections, confirmed_tracks)
+
 由于当前帧还没有confirmed　trackers，所以没有级联匹配。
 
 > matches_a, unmatched_tracks_a, unmatched_detections: [] [] [0, 1, 2, 3, 4, 5, 6, 7]
@@ -250,16 +262,17 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 （３）unmatched_tracks和unmatched_tracks_a一起组成iou_track_candidates，与还没有匹配上的检测结果（unmatched_detections）进行IOU匹配。
 
 （意思是，当目标被遮挡时，tracker会断掉，在规定帧内，这些断掉的tracker被记为unmatched_tracks_a，跟随上一帧的unmatched_tracks与当前帧的unmatched_detections进行IOU匹配）
-
+```python
 	iou_track_candidates = unconfirmed_tracks + [
     k for k in unmatched_tracks_a if
     self.tracks[k].time_since_update == 1]
-
-	-----------------------------------------------------------
+```
+```python
 	matches_b, unmatched_tracks_b, unmatched_detections = \
     linear_assignment.min_cost_matching(
         iou_matching.iou_cost, self.max_iou_distance, self.tracks,
         detections, iou_track_candidates, unmatched_detections)
+```
 
 当前iou_track_candidates有９（上一帧９＋前几帧０）个，还没match的有８个：
 
@@ -280,9 +293,12 @@ cost_matrix：
  ![cost_matrix](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/002.jpg)
 
 
-然后把cost_matrix作为匈牙利算法的输入，得到线性匹配结果：
+＃　然后把cost_matrix作为匈牙利算法的输入，得到线性匹配结果：
+```python
+
 	indices = linear_assignment(cost_matrix)
 
+```
 	indices: [[0 0]
 	 [1 1]
 	 [2 2]
@@ -304,17 +320,22 @@ cost_matrix：
         matches.append((track_idx, detection_idx))
 
 经过上述处理之后，依据IOU得到当前的匹配结果：
-
+```python
 	matches = matches_a + matches_b
 	unmatched_tracks = list(set(unmatched_tracks_a + unmatched_tracks_b))
 	return matches, unmatched_tracks, unmatched_detections
-
-> matches_b: [(0, 0), (1, 1), (2, 2), (3, 5), (4, 3), (5, 6), (6, 4), (7, 7)]
-unmatched_detections: []
+```
+```python
+	输出：
+	matches_b: [(0, 0), (1, 1), (2, 2), (3, 5), (4, 3), (5, 6), (6, 4), (7, 7)]
+	unmatched_detections: []
+```
 
 经由以上，得到当前的匹配结果：
-> matches, unmatched_tracks, unmatched_detections: [(0, 0), (1, 1), (2, 2), (3, 5), (4, 3), (5, 6), (6, 4), (7, 7)] [8] []
-
+```python
+	输出：
+	matches, unmatched_tracks, unmatched_detections: [(0, 0), (1, 1), (2, 2), (3, 5), (4, 3), (5, 6), (6, 4), (7, 7)] [8] []
+```
 
 
 ### ２.３　根据匹配情况更新tracker。
@@ -345,30 +366,35 @@ unmatched_detections: []
 
 - 　如果这个trk是还没经过确认的，直接从tk列表中删除;
 - 　如果这个是之前经过确认的,但是已经连续max_ age 帧(程序中设置的3)没能匹配检测结果了，我们也认为这个turk无效了，需要从trk列表中删除。
-
+```python
 		for track_idx in unmatched_tracks:
     	self.tracks[track_idx].mark_missed()
-		---------------------------------------------------
+```
+```python
 		def mark_missed(self):
     	if self.state == TrackState.Tentative:
         	self.state = TrackState.Deleted
     	elif self.time_since_update > self._max_age:
         	self.state = TrackState.Deleted
-		-------------------------------------------------------
+```
+```python
 		self.tracks = [t for t in self.tracks if not t.is_deleted()]
+```
 
 （３）针对unmatched_detections，要为其创建新的tracker。
-
+```python
 		for detection_idx in unmatched_detections:
 	    self._initiate_track(detections[detection_idx])
-		------------------------------------------------------
+```
+```python
 		def _initiate_track(self, detection):
 	    mean, covariance = self.kf.initiate(detection.to_xyah())
 	    self.tracks.append(Track(
 	        mean, covariance, self._next_id, self.n_init, self.max_age,
 	        detection.feature))
 	    self._next_id += 1
-		------------------------------------------------------
+```
+```python
 		def __init__(self, mean, covariance, track_id, n_init, max_age,
              feature=None):
 	    self.mean = mean                # 初始的mean
@@ -385,11 +411,13 @@ unmatched_detections: []
 
 	    self._n_init = n_init
 	    self._max_age = max_age
+```
 
 因为当前帧没有unmatched_detections，所以没有进行这些操作。
 
 ### ２.４更新已经确认的tracker的特征集。
 
+```python
 		active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
 		# print('active_targets:',active_targets)
 		features, targets = [], []
@@ -401,7 +429,8 @@ unmatched_detections: []
 		    track.features = []
 		self.metric.partial_fit(
 		    np.asarray(features), np.asarray(targets), active_targets)
-		----------------------------------------------------
+```
+```python
 		def partial_fit(self, features, targets, active_targets):
 			# 每个activate的追踪器保留最近的self，budget的特征
 		       for feature, target in zip(features, targets):
@@ -410,6 +439,7 @@ unmatched_detections: []
 		            self.samples[target] = self.samples[target][-self.budget:]
 			# 以dict的形式插入总库
 		    self.samples = {k: self.samples[k] for k in active_targets}
+```
 
 因为当前还没有已经确认的trk，所以没有进行这项操作。
 
@@ -450,6 +480,7 @@ unmatched_detections: []
 
 （１）将已经存在的tracker分为confirmed　trackers　和　unconfirmed　trackers。
 
+	输出：
 	confirmed_tracks: []
 	unconfirmed_tracks: [0, 1, 2, 3, 4, 5, 6, 7]
 	self.tracks: 8
@@ -458,12 +489,14 @@ unmatched_detections: []
 
 由于当前帧还没有confirmed　trackers，所以没有级联匹配。
 
-> matches_a, unmatched_tracks_a, unmatched_detections: [] [] [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+	输出：
+	matches_a, unmatched_tracks_a, unmatched_detections: [] [] [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 （３）unmatched_tracks和unmatched_tracks_a一起组成iou_track_candidates，与还没有匹配上的检测结果（unmatched_detections）进行IOU匹配。
 
 当前iou_track_candidates有８（上一帧８＋前几帧０）个，还没match的有３个：
 　
+	输出：
 	iou_track_candidates: [0, 1, 2, 3, 4, 5, 6, 7]
 	unmatched_detections: [8, 9, 10]
 
@@ -514,6 +547,8 @@ unmatched_detections: []
 
 经由以上，得到当前的匹配结果：
 
+	
+	输出：
 	matches, unmatched_tracks, unmatched_detections: [(0, 0), (1, 1), (2, 5), (3, 6), (4, 4), (5, 2), (6, 3), (7, 7)] [] [8, 9, 10]
 
 ### ２.３　根据匹配情况更新tracker。　
@@ -547,7 +582,7 @@ unmatched_detections: []
 把这些activate target之前保存的feature (之前每帧只要能匹配上，都会把与之匹配的det的feature 保存下来)，用于更新卡尔曼滤波的distance metric。
 
 【注意注意:程序中budget为100， 也就是trk最多保存最近与之匹配的100帧检测结果的feature。】
-
+```python
 		active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
 		# print('active_targets:',active_targets)
 		features, targets = [], []
@@ -559,7 +594,8 @@ unmatched_detections: []
 		    track.features = []
 		self.metric.partial_fit(
 		    np.asarray(features), np.asarray(targets), active_targets)
-			--------------------------------------------------
+```
+```python
 		def partial_fit(self, features, targets, active_targets):
 			# 每个activate的追踪器保留最近的self，budget的特征
 		       for feature, target in zip(features, targets):
@@ -568,6 +604,7 @@ unmatched_detections: []
 		            self.samples[target] = self.samples[target][-self.budget:]
 			# 以dict的形式插入总库
 		    self.samples = {k: self.samples[k] for k in active_targets}
+```
 
 因为当前帧不仅有检测结果，还有已经确认的trk,这些trk的跟踪结果也会画在图上(有11个)。同时，已经确认的trk的跟踪结果也会保存在txt中。.
 ![frame03](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/003.jpg)  
@@ -611,6 +648,7 @@ unmatched_detections: []
 进行ｄｅｔ和ｔｒｋ的匹配，包含如下***步骤***：
 
 （１）将已经存在的tracker分为confirmed　trackers　和　unconfirmed　trackers。
+
 		confirmed_tracks: [0, 1, 2, 3, 4, 5, 6, 7]
 		unconfirmed_tracks: [8, 9, 10]
 		self.tracks: 11
@@ -666,17 +704,21 @@ unmatched_detections: []
 
 具体过程是针对trk 的每个特征(因为每个trk都有一个特征集),计算它们与当前这14个det的特征之间的(1-余弦距离)。然后取最小值作为该trk与检测结果之间的计算值。
 
+```python
 		features = np.array([dets[i].feature for i in detection_indices])
 		targets = np.array([tracks[i].track_id for i in track_indices])
 		cost_matrix = self.metric.distance(features, targets)
-		-----------------------------------------------------
+```
+```python
 		cost_matrix = np.zeros((len(targets), len(features)))
 		for i, target in enumerate(targets):
 		    cost_matrix[i, :] = self._metric(self.samples[target], features)
 		return cost_matrix
-		-------------------------------------------------------
+```
+```python
 		distances = _cosine_distance(x, y)
 		return distances.min(axis=0)
+```
 
 
 由此，分别得到这８个ｔｒｋ和１４个ｄｅｔ之间的计算值。
@@ -700,30 +742,33 @@ unmatched_detections: []
 
 接着，在cost_matrix中，进行运动信息约束。
 
-		def gated_metric(tracks, dets, track_indices, detection_indices):
-		    features = np.array([dets[i].feature for i in detection_indices])
-		    targets = np.array([tracks[i].track_id for i in track_indices])
-		    # print('targets:',targets)
-		    # 计算当前帧每个新检测结果的深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵
-		    cost_matrix = self.metric.distance(features, targets)
-		    # print('cost_matrix:',cost_matrix)
-		    # 接着，在cost_matrix中，进行运动信息约束。
-		    cost_matrix = linear_assignment.gate_cost_matrix(
-		        self.kf, cost_matrix, tracks, dets, track_indices,
-		        detection_indices)
-		
-		    return cost_matrix
-		------------------------------------------------------
-		gating_dim = 2 if only_position else 4
-		gating_threshold = kalman_filter.chi2inv95[gating_dim]
-		measurements = np.asarray(
-		    [detections[i].to_xyah() for i in detection_indices])
-		for row, track_idx in enumerate(track_indices):
-		    track = tracks[track_idx]
-		    gating_distance = kf.gating_distance(
-		        track.mean, track.covariance, measurements, only_position)
-		    cost_matrix[row, gating_distance > gating_threshold] = gated_cost
-		return cost_matrix
+```python
+	def gated_metric(tracks, dets, track_indices, detection_indices):
+	    features = np.array([dets[i].feature for i in detection_indices])
+	    targets = np.array([tracks[i].track_id for i in track_indices])
+	    # print('targets:',targets)
+	    # 计算当前帧每个新检测结果的深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵
+	    cost_matrix = self.metric.distance(features, targets)
+	    # print('cost_matrix:',cost_matrix)
+	    # 接着，在cost_matrix中，进行运动信息约束。
+	    cost_matrix = linear_assignment.gate_cost_matrix(
+	        self.kf, cost_matrix, tracks, dets, track_indices,
+	        detection_indices)
+	
+	    return cost_matrix
+```
+```python
+	gating_dim = 2 if only_position else 4
+	gating_threshold = kalman_filter.chi2inv95[gating_dim]
+	measurements = np.asarray(
+	    [detections[i].to_xyah() for i in detection_indices])
+	for row, track_idx in enumerate(track_indices):
+	    track = tracks[track_idx]
+	    gating_distance = kf.gating_distance(
+	        track.mean, track.covariance, measurements, only_position)
+	    cost_matrix[row, gating_distance > gating_threshold] = gated_cost
+	return cost_matrix
+```
 
 展开来说，先将各检测结果由[x.y,w,h]转化为[center x,center y, aspect ration,height]:
 
@@ -732,10 +777,13 @@ unmatched_detections: []
 
 对每个trk，计算其预测结果和检测结果之间的马氏距离，并将cost_ matix中，相应的trk的马氏距离大于阈值(gating_ threshold)的值置 为100000 (gated_ cost，相当于设为无穷大) :
 
+```python
 	gating_distance = kf.gating_distance(
 	    track.mean, track.covariance, measurements, only_position)
 	cost_matrix[row, gating_distance > gating_threshold] = gated_cost
-
+```
+```python
+		输出：
 		cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
 		  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
 		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
@@ -760,6 +808,7 @@ unmatched_detections: []
 		 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
 		  1.00000000e+05 2.35082448e-01 1.00000000e+05 1.52034760e-02
 		  1.00000000e+05 1.00000000e+05 1.00000000e+05]]
+```
 
 将经过马氏距离处理的矩阵cost matix 继续经由max distance 处理，(程序中 max distance=0.2)得到处理过的cost＿matrix:
 
@@ -921,9 +970,6 @@ unmatched_detections: []
 ![frame04](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/005.jpg)
 
 ![txt04](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/006.jpg)
-
-
- 
 
 
 
