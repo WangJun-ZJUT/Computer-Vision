@@ -135,21 +135,20 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 （_next_id += 1：多一个tracker，id也就多一个）
 ```python
 	for detection_idx in unmatched_detections:
-    self._initiate_track(detections[detection_idx])
+    	self._initiate_track(detections[detection_idx])
 ```
 ```python	
 	def _initiate_track(self, detection):
-    mean, covariance = self.kf.initiate(detection.to_xyah())
-    self.tracks.append(Track(
-        mean, covariance, self._next_id, self.n_init, self.max_age,
-        detection.feature))
+    	mean, covariance = self.kf.initiate(detection.to_xyah())
+    	self.tracks.append(Track(
+        	mean, covariance, self._next_id, self.n_init, self.max_age,
+        	detection.feature))
 ```
 
 注意：每个tracker在创建时，它的状态都是tentative。
 
 ```python	
-	    def __init__(self, mean, covariance, track_id, n_init, max_age,
-                 feature=None):
+    def __init__(self, mean, covariance, track_id, n_init, max_age,feature=None):
         self.mean = mean                # 初始的mean
         self.covariance = covariance        # 初始的covariance
         self.track_id = track_id            # id
@@ -163,38 +162,37 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
             self.features.append(feature)   # 相应的det特征存入特征库中
 ```
 ```python
-		class TrackState:
+	class TrackState:
 
-    		Tentative = 1
-    		Confirmed = 2
-    		Deleted = 3
+		Tentative = 1
+		Confirmed = 2
+		Deleted = 3
 ```
 
 此时第一帧的tracker已经创建，其结果与第一帧的检测结果一样。因为tracker的结果还未得到确认，所以不会把tracker的结果输出到txt中。
 ```python
 	# Store results.
 	for track in tracker.tracks:
-    if not track.is_confirmed() or track.time_since_update > 1:
-        continue
-    bbox = track.to_tlwh()
-    results.append([
-        frame_idx, track.track_id, bbox[0], bbox[1], bbox[2], bbox[3]])
+    	if not track.is_confirmed() or track.time_since_update > 1:
+        	continue
+    	bbox = track.to_tlwh()
+	results.append([frame_idx, track.track_id, bbox[0], bbox[1], bbox[2], bbox[3]])
 ```
 
 同时，未确认的tracker的结果不会画在图上，所以第一帧只能看到检测结果（画出ｂｏｘ框，但是不会有id标号）。
 ```python
 	def draw_trackers(self, tracks):
-    self.viewer.thickness = 2
-    for track in tracks:
-        if not track.is_confirmed() or track.time_since_update > 0:
-            continue
-        self.viewer.color = create_unique_color_uchar(track.track_id)
-        self.viewer.rectangle(
-            *track.to_tlwh().astype(np.int), label=str(track.track_id))
+	    self.viewer.thickness = 2
+	    for track in tracks:
+	        if not track.is_confirmed() or track.time_since_update > 0:
+	            continue
+	        self.viewer.color = create_unique_color_uchar(track.track_id)
+	        self.viewer.rectangle(
+	            *track.to_tlwh().astype(np.int), label=str(track.track_id))
 ```
 ```python
-	 def draw_trackers(self, tracks):
-        self.viewer.thickness = 2
+	def draw_trackers(self, tracks):
+		self.viewer.thickness = 2
         for track in tracks:
             if not track.is_confirmed() or track.time_since_update > 0:
                 continue
@@ -257,21 +255,21 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 
 由于当前帧还没有confirmed　trackers，所以没有级联匹配。
 
-> matches_a, unmatched_tracks_a, unmatched_detections: [] [] [0, 1, 2, 3, 4, 5, 6, 7]
+	matches_a, unmatched_tracks_a, unmatched_detections: [] [] [0, 1, 2, 3, 4, 5, 6, 7]
 
 （３）unmatched_tracks和unmatched_tracks_a一起组成iou_track_candidates，与还没有匹配上的检测结果（unmatched_detections）进行IOU匹配。
 
 （意思是，当目标被遮挡时，tracker会断掉，在规定帧内，这些断掉的tracker被记为unmatched_tracks_a，跟随上一帧的unmatched_tracks与当前帧的unmatched_detections进行IOU匹配）
 ```python
 	iou_track_candidates = unconfirmed_tracks + [
-    k for k in unmatched_tracks_a if
-    self.tracks[k].time_since_update == 1]
+    	k for k in unmatched_tracks_a if
+    	self.tracks[k].time_since_update == 1]
 ```
 ```python
 	matches_b, unmatched_tracks_b, unmatched_detections = \
-    linear_assignment.min_cost_matching(
-        iou_matching.iou_cost, self.max_iou_distance, self.tracks,
-        detections, iou_track_candidates, unmatched_detections)
+	    linear_assignment.min_cost_matching(
+	        iou_matching.iou_cost, self.max_iou_distance, self.tracks,
+	        detections, iou_track_candidates, unmatched_detections)
 ```
 
 当前iou_track_candidates有９（上一帧９＋前几帧０）个，还没match的有８个：
@@ -295,9 +293,7 @@ cost_matrix：
 
 ＃　然后把cost_matrix作为匈牙利算法的输入，得到线性匹配结果：
 ```python
-
 	indices = linear_assignment(cost_matrix)
-
 ```
 	indices: [[0 0]
 	 [1 1]
@@ -311,13 +307,13 @@ cost_matrix：
 注意：如果某个组合的ｃｏｓｔ值大于阈值，这样的组合还是认为是不match的，相应的，还会把组合中的检测框和跟踪框都踢到各自的unmatch列表中。
 
 	for row, col in indices:
-    track_idx = track_indices[row]
-    detection_idx = detection_indices[col]
-    if cost_matrix[row, col] > max_distance:
-        unmatched_tracks.append(track_idx)
-        unmatched_detections.append(detection_idx)
-    else:
-        matches.append((track_idx, detection_idx))
+	    track_idx = track_indices[row]
+	    detection_idx = detection_indices[col]
+	    if cost_matrix[row, col] > max_distance:
+	        unmatched_tracks.append(track_idx)
+	        unmatched_detections.append(detection_idx)
+	    else:
+	        matches.append((track_idx, detection_idx))
 
 经过上述处理之后，依据IOU得到当前的匹配结果：
 ```python
@@ -367,27 +363,27 @@ cost_matrix：
 - 　如果这个trk是还没经过确认的，直接从tk列表中删除;
 - 　如果这个是之前经过确认的,但是已经连续max_ age 帧(程序中设置的3)没能匹配检测结果了，我们也认为这个turk无效了，需要从trk列表中删除。
 ```python
-		for track_idx in unmatched_tracks:
+	for track_idx in unmatched_tracks:
     	self.tracks[track_idx].mark_missed()
 ```
 ```python
-		def mark_missed(self):
+	def mark_missed(self):
     	if self.state == TrackState.Tentative:
         	self.state = TrackState.Deleted
     	elif self.time_since_update > self._max_age:
         	self.state = TrackState.Deleted
 ```
 ```python
-		self.tracks = [t for t in self.tracks if not t.is_deleted()]
+	self.tracks = [t for t in self.tracks if not t.is_deleted()]
 ```
 
 （３）针对unmatched_detections，要为其创建新的tracker。
 ```python
-		for detection_idx in unmatched_detections:
+	for detection_idx in unmatched_detections:
 	    self._initiate_track(detections[detection_idx])
 ```
 ```python
-		def _initiate_track(self, detection):
+	def _initiate_track(self, detection):
 	    mean, covariance = self.kf.initiate(detection.to_xyah())
 	    self.tracks.append(Track(
 	        mean, covariance, self._next_id, self.n_init, self.max_age,
@@ -395,7 +391,7 @@ cost_matrix：
 	    self._next_id += 1
 ```
 ```python
-		def __init__(self, mean, covariance, track_id, n_init, max_age,
+	def __init__(self, mean, covariance, track_id, n_init, max_age,
              feature=None):
 	    self.mean = mean                # 初始的mean
 	    self.covariance = covariance        # 初始的covariance
@@ -418,27 +414,27 @@ cost_matrix：
 ### ２.４更新已经确认的tracker的特征集。
 
 ```python
-		active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
-		# print('active_targets:',active_targets)
-		features, targets = [], []
-		for track in self.tracks:
-		    if not track.is_confirmed():
-		        continue
-		    features += track.features
-		    targets += [track.track_id for _ in track.features]
-		    track.features = []
-		self.metric.partial_fit(
-		    np.asarray(features), np.asarray(targets), active_targets)
+	active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+	# print('active_targets:',active_targets)
+	features, targets = [], []
+	for track in self.tracks:
+	    if not track.is_confirmed():
+	        continue
+	    features += track.features
+	    targets += [track.track_id for _ in track.features]
+	    track.features = []
+	self.metric.partial_fit(
+	    np.asarray(features), np.asarray(targets), active_targets)
 ```
 ```python
-		def partial_fit(self, features, targets, active_targets):
-			# 每个activate的追踪器保留最近的self，budget的特征
-		       for feature, target in zip(features, targets):
-		        self.samples.setdefault(target, []).append(feature)
-		        if self.budget is not None:
-		            self.samples[target] = self.samples[target][-self.budget:]
-			# 以dict的形式插入总库
-		    self.samples = {k: self.samples[k] for k in active_targets}
+	def partial_fit(self, features, targets, active_targets):
+		# 每个activate的追踪器保留最近的self，budget的特征
+	       for feature, target in zip(features, targets):
+	        self.samples.setdefault(target, []).append(feature)
+	        if self.budget is not None:
+	            self.samples[target] = self.samples[target][-self.budget:]
+		# 以dict的形式插入总库
+	    self.samples = {k: self.samples[k] for k in active_targets}
 ```
 
 因为当前还没有已经确认的trk，所以没有进行这项操作。
@@ -575,35 +571,35 @@ cost_matrix：
  ### ２.４更新已经确认的tracker的特征集。
 
 因为当前帧已经有了确认的ｔｒｋ（８个），所以有了activate　target。
-		active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
-		
-		active_targets: [1, 2, 3, 4, 5, 6, 7, 8]
+	active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+	
+	active_targets: [1, 2, 3, 4, 5, 6, 7, 8]
 
 把这些activate target之前保存的feature (之前每帧只要能匹配上，都会把与之匹配的det的feature 保存下来)，用于更新卡尔曼滤波的distance metric。
 
 【注意注意:程序中budget为100， 也就是trk最多保存最近与之匹配的100帧检测结果的feature。】
 ```python
-		active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
-		# print('active_targets:',active_targets)
-		features, targets = [], []
-		for track in self.tracks:
-		    if not track.is_confirmed():
-		        continue
-		    features += track.features
-		    targets += [track.track_id for _ in track.features]
-		    track.features = []
-		self.metric.partial_fit(
-		    np.asarray(features), np.asarray(targets), active_targets)
+	active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+	# print('active_targets:',active_targets)
+	features, targets = [], []
+	for track in self.tracks:
+	    if not track.is_confirmed():
+	        continue
+	    features += track.features
+	    targets += [track.track_id for _ in track.features]
+	    track.features = []
+	self.metric.partial_fit(
+	    np.asarray(features), np.asarray(targets), active_targets)
 ```
 ```python
-		def partial_fit(self, features, targets, active_targets):
-			# 每个activate的追踪器保留最近的self，budget的特征
-		       for feature, target in zip(features, targets):
-		        self.samples.setdefault(target, []).append(feature)
-		        if self.budget is not None:
-		            self.samples[target] = self.samples[target][-self.budget:]
-			# 以dict的形式插入总库
-		    self.samples = {k: self.samples[k] for k in active_targets}
+	def partial_fit(self, features, targets, active_targets):
+		# 每个activate的追踪器保留最近的self，budget的特征
+	       for feature, target in zip(features, targets):
+	        self.samples.setdefault(target, []).append(feature)
+	        if self.budget is not None:
+	            self.samples[target] = self.samples[target][-self.budget:]
+		# 以dict的形式插入总库
+	    self.samples = {k: self.samples[k] for k in active_targets}
 ```
 
 因为当前帧不仅有检测结果，还有已经确认的trk,这些trk的跟踪结果也会画在图上(有11个)。同时，已经确认的trk的跟踪结果也会保存在txt中。.
@@ -659,23 +655,23 @@ cost_matrix：
 
 终于，第4帧有confimed tracks了，可以进行级联匹配操作了...步骤如下:
 
-		for level in range(cascade_depth):
-		    if len(unmatched_detections) == 0:  # No detections left
-		        break
-		
-		    track_indices_l = [
-		        k for k in track_indices
-		        if tracks[k].time_since_update == 1 + level
-		    ]
-		    if len(track_indices_l) == 0:  # Nothing to match at this level
-		        continue
-		
-		    matches_l, _, unmatched_detections = \
-		        min_cost_matching(
-		            distance_metric, max_distance, tracks, detections,
-		            track_indices_l, unmatched_detections)
-		    matches += matches_l
-		unmatched_tracks = list(set(track_indices) - set(k for k, _ in matches))
+	for level in range(cascade_depth):
+	    if len(unmatched_detections) == 0:  # No detections left
+	        break
+	
+	    track_indices_l = [
+	        k for k in track_indices
+	        if tracks[k].time_since_update == 1 + level
+	    ]
+	    if len(track_indices_l) == 0:  # Nothing to match at this level
+	        continue
+	
+	    matches_l, _, unmatched_detections = \
+	        min_cost_matching(
+	            distance_metric, max_distance, tracks, detections,
+	            track_indices_l, unmatched_detections)
+	    matches += matches_l
+	unmatched_tracks = list(set(track_indices) - set(k for k, _ in matches))
 
 ／／／／／／级联匹配循环中／／／／／／
 
@@ -690,34 +686,34 @@ cost_matrix：
 
 计算当前帧每个新检测结果的深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵。
 
-		def gated_metric(tracks, dets, track_indices, detection_indices):
-		    features = np.array([dets[i].feature for i in detection_indices])
-		    targets = np.array([tracks[i].track_id for i in track_indices])   # 这个targets和c85的active_targets一样。
-		    # print('targets:',targets)
-		# 计算每个深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵
-		    cost_matrix = self.metric.distance(features, targets)
-		    cost_matrix = linear_assignment.gate_cost_matrix(
-		        self.kf, cost_matrix, tracks, dets, track_indices,
-		        detection_indices)
-		
-		    return cost_matrix
+	def gated_metric(tracks, dets, track_indices, detection_indices):
+	    features = np.array([dets[i].feature for i in detection_indices])
+	    targets = np.array([tracks[i].track_id for i in track_indices])   # 这个targets和c85的active_targets一样。
+	    # print('targets:',targets)
+	# 计算每个深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵
+	    cost_matrix = self.metric.distance(features, targets)
+	    cost_matrix = linear_assignment.gate_cost_matrix(
+	        self.kf, cost_matrix, tracks, dets, track_indices,
+	        detection_indices)
+	
+	    return cost_matrix
 
 具体过程是针对trk 的每个特征(因为每个trk都有一个特征集),计算它们与当前这14个det的特征之间的(1-余弦距离)。然后取最小值作为该trk与检测结果之间的计算值。
 
 ```python
-		features = np.array([dets[i].feature for i in detection_indices])
-		targets = np.array([tracks[i].track_id for i in track_indices])
-		cost_matrix = self.metric.distance(features, targets)
+	features = np.array([dets[i].feature for i in detection_indices])
+	targets = np.array([tracks[i].track_id for i in track_indices])
+	cost_matrix = self.metric.distance(features, targets)
 ```
 ```python
-		cost_matrix = np.zeros((len(targets), len(features)))
-		for i, target in enumerate(targets):
-		    cost_matrix[i, :] = self._metric(self.samples[target], features)
-		return cost_matrix
+	cost_matrix = np.zeros((len(targets), len(features)))
+	for i, target in enumerate(targets):
+	    cost_matrix[i, :] = self._metric(self.samples[target], features)
+	return cost_matrix
 ```
 ```python
-		distances = _cosine_distance(x, y)
-		return distances.min(axis=0)
+	distances = _cosine_distance(x, y)
+	return distances.min(axis=0)
 ```
 
 
@@ -772,8 +768,8 @@ cost_matrix：
 
 展开来说，先将各检测结果由[x.y,w,h]转化为[center x,center y, aspect ration,height]:
 
-		measurements = np.asarray(
-		    [detections[i].to_xyah() for i in detection_indices])
+	measurements = np.asarray(
+	    [detections[i].to_xyah() for i in detection_indices])
 
 对每个trk，计算其预测结果和检测结果之间的马氏距离，并将cost_ matix中，相应的trk的马氏距离大于阈值(gating_ threshold)的值置 为100000 (gated_ cost，相当于设为无穷大) :
 
@@ -783,31 +779,31 @@ cost_matrix：
 	cost_matrix[row, gating_distance > gating_threshold] = gated_cost
 ```
 ```python
-		输出：
-		cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 3.20937634e-02 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 1.00000000e+05 1.00000000e+05 6.04354739e-02
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  4.20147181e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 1.00000000e+05 9.44638252e-03 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 3.59910727e-03 1.00000000e+05
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 7.66444206e-03 1.00000000e+05 2.63210595e-01
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]
-		 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-		  1.00000000e+05 2.35082448e-01 1.00000000e+05 1.52034760e-02
-		  1.00000000e+05 1.00000000e+05 1.00000000e+05]]
+	输出：
+	cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 3.20937634e-02 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 6.04354739e-02
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  4.20147181e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 9.44638252e-03 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 3.59910727e-03 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 7.66444206e-03 1.00000000e+05 2.63210595e-01
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 2.35082448e-01 1.00000000e+05 1.52034760e-02
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]]
 ```
 
 将经过马氏距离处理的矩阵cost matix 继续经由max distance 处理，(程序中 max distance=0.2)得到处理过的cost＿matrix:
@@ -815,22 +811,22 @@ cost_matrix：
 	# 程序中把ｃｏｓｔ大于阈值（０.７）的，都设置成了０.７
 	cost_matrix[cost_matrix > max_distance] = max_distance + 1e-5
 
-		cost_matrix111: [[0.02023339 0.20001    0.20001    0.20001    0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.03209376 0.20001    0.20001    0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.06043547 0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.04201472 0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.00944638 0.20001    0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
-		  0.00359911 0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.20001    0.00766444
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
-		  0.20001    0.01520348 0.20001    0.20001    0.20001   ]]
+	cost_matrix111: [[0.02023339 0.20001    0.20001    0.20001    0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.03209376 0.20001    0.20001    0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.06043547 0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.04201472 0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.00944638 0.20001    0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
+	  0.00359911 0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.20001    0.00766444
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
+	  0.20001    0.01520348 0.20001    0.20001    0.20001   ]]
 
 把cost_matrix作为匈牙利算法的输入，得到线性匹配结果：
 
@@ -845,78 +841,78 @@ cost_matrix：
 
 对匹配结果进行筛选，删去两者差距太大的：
 
-		matches, unmatched_tracks, unmatched_detections = [], [], []
-		for col, detection_idx in enumerate(detection_indices):
-		    if col not in indices[:, 1]:
-		        unmatched_detections.append(detection_idx)
-		for row, track_idx in enumerate(track_indices):
-		    if row not in indices[:, 0]:
-		        unmatched_tracks.append(track_idx)
-		for row, col in indices:
-		    track_idx = track_indices[row]
-		    detection_idx = detection_indices[col]
-		    if cost_matrix[row, col] > max_distance:
-		        unmatched_tracks.append(track_idx)
-		        unmatched_detections.append(detection_idx)
-		    else:
-		        matches.append((track_idx, detection_idx))
-		return matches, unmatched_tracks, unmatched_detections
+	matches, unmatched_tracks, unmatched_detections = [], [], []
+	for col, detection_idx in enumerate(detection_indices):
+	    if col not in indices[:, 1]:
+	        unmatched_detections.append(detection_idx)
+	for row, track_idx in enumerate(track_indices):
+	    if row not in indices[:, 0]:
+	        unmatched_tracks.append(track_idx)
+	for row, col in indices:
+	    track_idx = track_indices[row]
+	    detection_idx = detection_indices[col]
+	    if cost_matrix[row, col] > max_distance:
+	        unmatched_tracks.append(track_idx)
+	        unmatched_detections.append(detection_idx)
+	    else:
+	        matches.append((track_idx, detection_idx))
+	return matches, unmatched_tracks, unmatched_detections
 
 由此得到当前level的匹配结果：
-		matches,  unmatched_detections: [(0, 0), (1, 1), (2, 3), (3, 4), (4, 2), (5, 6), (6, 5), (7, 7)] [8, 9, 10]
+	matches,  unmatched_detections: [(0, 0), (1, 1), (2, 3), (3, 4), (4, 2), (5, 6), (6, 5), (7, 7)] [8, 9, 10]
 组合各层的匹配：
-		matches += matches_l
+	matches += matches_l
 
 ／／／／／／／／／／结束循环／／／／／／／／／／／／
 
 得到由级联匹配得到的匹配结果：
 
-		matches_a, unmatched_tracks_a, unmatched_detections: [(0, 0), (1, 1), (2, 3), (3, 4), (4, 2), (5, 6), (6, 5), (7, 7)] [] [8, 9, 10]
+	matches_a, unmatched_tracks_a, unmatched_detections: [(0, 0), (1, 1), (2, 3), (3, 4), (4, 2), (5, 6), (6, 5), (7, 7)] [] [8, 9, 10]
 
 （３）unmatched_tracks和unmatched_tracks_a一起组成iou_track_candidates，与还没有匹配上的检测结果（unmatched_detections）进行IOU匹配。
 
 当前iou_track_candidates有３（上一帧３＋前几帧０）个，还没match的有０个：
 　
-		iou_track_candidates: [8, 9, 10]
-		unmatched_detections: []
+	iou_track_candidates: [8, 9, 10]
+	unmatched_detections: []
 
 - 首先计算这些ｂｏｘ两两之间的ｉｏｕ，经过１－ｉｏｕ得到cost_matrix：
 
 - ｃｏｓｔ大于阈值（０.７）的，都设置成了０.７
 
-		cost_matrix111: [[0.02023339 0.20001    0.20001    0.20001    0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.03209376 0.20001    0.20001    0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.06043547 0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.04201472 0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.00944638 0.20001    0.20001    0.20001
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
-		  0.00359911 0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.20001    0.00766444
-		  0.20001    0.20001    0.20001    0.20001    0.20001   ]
-		 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
-		  0.20001    0.01520348 0.20001    0.20001    0.20001   ]]
+	cost_matrix111: [[0.02023339 0.20001    0.20001    0.20001    0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.03209376 0.20001    0.20001    0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.06043547 0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.04201472 0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.00944638 0.20001    0.20001    0.20001
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
+	  0.00359911 0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.20001    0.00766444
+	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
+	 [0.20001    0.20001    0.20001    0.20001    0.20001    0.20001
+	  0.20001    0.01520348 0.20001    0.20001    0.20001   ]]
 
 - 然后把cost_matrix作为匈牙利算法的输入，得到线性匹配结果：
 
-		indices: [[0 0]
-		 [1 1]
-		 [2 3]
-		 [3 4]
-		 [4 2]
-		 [5 6]
-		 [6 5]
-		 [7 7]]
+	indices: [[0 0]
+	 [1 1]
+	 [2 3]
+	 [3 4]
+	 [4 2]
+	 [5 6]
+	 [6 5]
+	 [7 7]]
 
 经过上述处理之后，依据IOU得到当前匹配结果：
 
-		matches_b: [(8, 10), (9, 8), (10, 9)]
-		unmatched_tracks_b: []
-		unmatched_detections: []
+	matches_b: [(8, 10), (9, 8), (10, 9)]
+	unmatched_tracks_b: []
+	unmatched_detections: []
 
 经由以上，得到当前的匹配结果：
 
