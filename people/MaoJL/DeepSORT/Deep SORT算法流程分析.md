@@ -248,9 +248,9 @@ def _initiate_track(self, detection):
 ```python
 	# Associate confirmed tracks using appearance features.
 	matches_a, unmatched_tracks_a, unmatched_detections = \
-    linear_assignment.matching_cascade(
-        gated_metric, self.metric.matching_threshold, self.max_age,
-        self.tracks, detections, confirmed_tracks)
+		linear_assignment.matching_cascade(
+			gated_metric, self.metric.matching_threshold, self.max_age,
+			self.tracks, detections, confirmed_tracks)
 ```
  
 由于当前帧还没有confirmed　trackers，所以没有级联匹配。
