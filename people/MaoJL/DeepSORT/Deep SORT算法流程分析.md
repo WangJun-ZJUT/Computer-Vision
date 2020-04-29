@@ -228,16 +228,20 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 
 ### ２.２匹配
 #### ２.２.１　检测结果和预测结果的匹配。
-
+ 
+```python
 	matches, unmatched_tracks, unmatched_detections = self._match(detections)
-
+```
+ 
 步骤：
 
 （１）将已经存在的tracker分为confirmed　trackers　和　unconfirmed　trackers。
-
+ 
+```python
 	confirmed_tracks = [i for i, t in enumerate(self.tracks) if t.is_confirmed()]
 	unconfirmed_tracks = [i for i, t in enumerate(self.tracks) if not t.is_confirmed()]
-
+```
+ 
 此时因为这些tracker还没有经过确认（匹配），所以它们的state是Tentative。
 
 	
@@ -246,13 +250,15 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 	unconfirmed_tracks: [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
 （２）针对之前的confirmed　trackers，将它们与当前的检测结果进行级联匹配。
-
+ 
+```python
 	# Associate confirmed tracks using appearance features.
 	matches_a, unmatched_tracks_a, unmatched_detections = \
     linear_assignment.matching_cascade(
         gated_metric, self.metric.matching_threshold, self.max_age,
         self.tracks, detections, confirmed_tracks)
-
+```
+ 
 由于当前帧还没有confirmed　trackers，所以没有级联匹配。
 
 	matches_a, unmatched_tracks_a, unmatched_detections: [] [] [0, 1, 2, 3, 4, 5, 6, 7]
@@ -278,11 +284,13 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 	unmatched_detections: [0, 1, 2, 3, 4, 5, 6, 7]
 
 ＃　首先计算这些box两两之间的ｉｏｕ，经过１－ｉｏｕ得到ｃｏｓｔ——matrix：
-
+ 
+```python
 	bbox = tracks[track_idx].to_tlwh()
 	candidates = np.asarray([detections[i].tlwh for i in detection_indices])
 	cost_matrix[row, :] = 1. - iou(bbox, candidates)
-
+```
+ 
 cost_matrix：
 ![cost_matrix](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/001.jpg)
  
@@ -305,7 +313,8 @@ cost_matrix：
 	 [7 7]]
 
 注意：如果某个组合的ｃｏｓｔ值大于阈值，这样的组合还是认为是不match的，相应的，还会把组合中的检测框和跟踪框都踢到各自的unmatch列表中。
-
+ 
+```python
 	for row, col in indices:
 	    track_idx = track_indices[row]
 	    detection_idx = detection_indices[col]
@@ -314,7 +323,8 @@ cost_matrix：
 	        unmatched_detections.append(detection_idx)
 	    else:
 	        matches.append((track_idx, detection_idx))
-
+```
+ 
 经过上述处理之后，依据IOU得到当前的匹配结果：
 ```python
 	matches = matches_a + matches_b
@@ -328,26 +338,29 @@ cost_matrix：
 ```
 
 经由以上，得到当前的匹配结果：
-```python
+ 
 	输出：
 	matches, unmatched_tracks, unmatched_detections: [(0, 0), (1, 1), (2, 2), (3, 5), (4, 3), (5, 6), (6, 4), (7, 7)] [8] []
-```
+ 
 
 
 ### ２.３　根据匹配情况更新tracker。
 
 （１）针对match的，要用检测结果去更新相应的tracker的参数；　
-	
+ 
+```python	
 	for track_idx, detection_idx in matches:
     self.tracks[track_idx].update(
         self.kf, detections[detection_idx])
-
+```
+ 
 更新包括几个操作：
 
 - 更新ｋａｌｍａｎ滤波的一系列运动变量，命中次数和重置time＿ｓｉｎｃｅ＿ｕｐｄａｔｅ．
 - ｄｅｔ的深度特征保存到这个ｔｒｋ的特征集中。
 - 如果已经连续命中３帧，将ｔｒｋ的状态由tentative改为confirmed。
-
+ 
+```python
 		self.mean, self.covariance = kf.update(
 	    self.mean, self.covariance, detection.to_xyah())
 		self.features.append(detection.feature)
@@ -356,7 +369,8 @@ cost_matrix：
 		self.time_since_update = 0
 		if self.state == TrackState.Tentative and self.hits >= self._n_init:
 	    self.state = TrackState.Confirmed
-
+```
+ 
 
 （２）针对unmatched_tracks：
 
@@ -557,10 +571,12 @@ cost_matrix：
 - 如果已经连续命中３帧，将ｔｒｋ的状态由tentative改为confirmed。
 
 因为有８个ｔｒｋ的命中帧数已经是３帧，所以它们的状态改为confirmed。
-
+ 
+```python
 	if self.state == TrackState.Tentative and self.hits >= self._n_init:
 	    self.state = TrackState.Confirmed
-
+```
+ 
 （２）针对unmatched_tracks：
 
 - 　如果这个trk是还没经过确认的，直接从tk列表中删除;（０个：unmatched_tracks＝［］）
@@ -571,9 +587,10 @@ cost_matrix：
  ### ２.４更新已经确认的tracker的特征集。
 
 因为当前帧已经有了确认的ｔｒｋ（８个），所以有了activate　target。
+
 	active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
 	
-	active_targets: [1, 2, 3, 4, 5, 6, 7, 8]
+> active_targets: [1, 2, 3, 4, 5, 6, 7, 8]
 
 把这些activate target之前保存的feature (之前每帧只要能匹配上，都会把与之匹配的det的feature 保存下来)，用于更新卡尔曼滤波的distance metric。
 
@@ -654,7 +671,8 @@ cost_matrix：
 > 为啥叫做“级联匹配”? ?就是因为这个匹配操作需要从刚刚匹配成功的trk循环遍历到最多已经有30次(cascade_ _depth)没有匹配的trk。
 
 终于，第4帧有confimed tracks了，可以进行级联匹配操作了...步骤如下:
-
+ 
+```python
 	for level in range(cascade_depth):
 	    if len(unmatched_detections) == 0:  # No detections left
 	        break
@@ -672,7 +690,8 @@ cost_matrix：
 	            track_indices_l, unmatched_detections)
 	    matches += matches_l
 	unmatched_tracks = list(set(track_indices) - set(k for k, _ in matches))
-
+```
+ 
 ／／／／／／级联匹配循环中／／／／／／
 
 因为这８个ｔｒｋ在上一帧中都经历了update（time＿since＿update被重置为０），在 刚刚的predict 中time_ since_ update 增加1变为1。
@@ -680,12 +699,15 @@ cost_matrix：
 所以当前而言，有效循环仅有level＝０这一层。
 
 下面这个distance_ matric 包括外观(深度特征)和运动信息(马氏距离)。
-
+ 
+```python
 		cost_matrix = distance_metric(
     		tracks, detections, track_indices, detection_indices)
-
+```
+ 
 计算当前帧每个新检测结果的深度特征与这一层中每个trk已保存的特征集之间的余弦距离矩阵。
-
+ 
+```python
 	def gated_metric(tracks, dets, track_indices, detection_indices):
 	    features = np.array([dets[i].feature for i in detection_indices])
 	    targets = np.array([tracks[i].track_id for i in track_indices])   # 这个targets和c85的active_targets一样。
@@ -697,7 +719,8 @@ cost_matrix：
 	        detection_indices)
 	
 	    return cost_matrix
-
+```
+ 
 具体过程是针对trk 的每个特征(因为每个trk都有一个特征集),计算它们与当前这14个det的特征之间的(1-余弦距离)。然后取最小值作为该trk与检测结果之间的计算值。
 
 ```python
@@ -767,10 +790,12 @@ cost_matrix：
 ```
 
 展开来说，先将各检测结果由[x.y,w,h]转化为[center x,center y, aspect ration,height]:
-
+ 
+```python
 	measurements = np.asarray(
 	    [detections[i].to_xyah() for i in detection_indices])
-
+```
+ 
 对每个trk，计算其预测结果和检测结果之间的马氏距离，并将cost_ matix中，相应的trk的马氏距离大于阈值(gating_ threshold)的值置 为100000 (gated_ cost，相当于设为无穷大) :
 
 ```python
@@ -778,39 +803,42 @@ cost_matrix：
 	    track.mean, track.covariance, measurements, only_position)
 	cost_matrix[row, gating_distance > gating_threshold] = gated_cost
 ```
-```python
-输出：
-cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 3.20937634e-02 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 1.00000000e+05 1.00000000e+05 6.04354739e-02
-  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  4.20147181e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 1.00000000e+05 9.44638252e-03 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 3.59910727e-03 1.00000000e+05
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 7.66444206e-03 1.00000000e+05 2.63210595e-01
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]
- [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
-  1.00000000e+05 2.35082448e-01 1.00000000e+05 1.52034760e-02
-  1.00000000e+05 1.00000000e+05 1.00000000e+05]]
-```
+ 
+	输出：
+	cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 3.20937634e-02 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 6.04354739e-02
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  4.20147181e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 9.44638252e-03 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 3.59910727e-03 1.00000000e+05
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 7.66444206e-03 1.00000000e+05 2.63210595e-01
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]
+	 [1.00000000e+05 1.00000000e+05 1.00000000e+05 1.00000000e+05
+	  1.00000000e+05 2.35082448e-01 1.00000000e+05 1.52034760e-02
+	  1.00000000e+05 1.00000000e+05 1.00000000e+05]]
+ 
 
 将经过马氏距离处理的矩阵cost matix 继续经由max distance 处理，(程序中 max distance=0.2)得到处理过的cost＿matrix:
 
 程序中把ｃｏｓｔ大于阈值（０.７）的，都设置成了０.７
+ 
+```python
 	cost_matrix[cost_matrix > max_distance] = max_distance + 1e-5
-
+```
+ 
 	cost_matrix111: [[0.02023339 0.20001    0.20001    0.20001    0.20001    0.20001
 	  0.20001    0.20001    0.20001    0.20001    0.20001   ]
 	 [0.20001    0.03209376 0.20001    0.20001    0.20001    0.20001
@@ -840,7 +868,8 @@ cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
 	 [7 7]]
 
 对匹配结果进行筛选，删去两者差距太大的：
-
+ 
+```python
 	matches, unmatched_tracks, unmatched_detections = [], [], []
 	for col, detection_idx in enumerate(detection_indices):
 	    if col not in indices[:, 1]:
@@ -857,10 +886,14 @@ cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
 	    else:
 	        matches.append((track_idx, detection_idx))
 	return matches, unmatched_tracks, unmatched_detections
-
+```
+ 
 由此得到当前level的匹配结果：
+
 	matches,  unmatched_detections: [(0, 0), (1, 1), (2, 3), (3, 4), (4, 2), (5, 6), (6, 5), (7, 7)] [8, 9, 10]
+
 组合各层的匹配：
+
 	matches += matches_l
 
 ／／／／／／／／／／结束循环／／／／／／／／／／／／
@@ -966,10 +999,4 @@ cost_matrix: [[2.02333927e-02 1.00000000e+05 1.00000000e+05 1.00000000e+05
 ![frame04](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/005.jpg)
 
 ![txt04](https://github.com/WangJun-ZJUT/Computer-Vision/blob/master/people/MaoJL/DeepSORT/img/006.jpg)
-
-
-
-
-
- 
 
