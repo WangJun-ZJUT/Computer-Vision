@@ -94,14 +94,14 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 ```python
 	def __init__(self, metric, max_iou_distance=0.7, max_age=30, n_init=3):
 		self.metric = metric
-        self.max_iou_distance = max_iou_distance
-        self.max_age = max_age
-        self.n_init = n_init
+		self.max_iou_distance = max_iou_distance
+		self.max_age = max_age
+		self.n_init = n_init
 
-        self.kf = kalman_filter.KalmanFilter()
-        self.tracks = []
-        # print('*******************self.tracks：',self.tracks)
-        self._next_id = 1
+		self.kf = kalman_filter.KalmanFilter()
+		self.tracks = []
+		# print('*******************self.tracks：',self.tracks)
+		self._next_id = 1
 ```
 ```python
     def predict(self):
@@ -134,11 +134,11 @@ trk最多保存最近与之匹配的100帧检测结果的feature。
 
 （_next_id += 1：多一个tracker，id也就多一个）
 ```python
-	for detection_idx in unmatched_detections:
+for detection_idx in unmatched_detections:
     	self._initiate_track(detections[detection_idx])
 ```
 ```python	
-	def _initiate_track(self, detection):
+def _initiate_track(self, detection):
     	mean, covariance = self.kf.initiate(detection.to_xyah())
     	self.tracks.append(Track(
         	mean, covariance, self._next_id, self.n_init, self.max_age,
