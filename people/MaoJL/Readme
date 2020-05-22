@@ -1,3 +1,4 @@
+
 #List of paper
 
 ## 2020
@@ -91,3 +92,5 @@ JDE是检测与嵌入的联合学习，在单次前向传播中同时输出目�
 
 
 ### STAM(spatial- temporal attention mechanism) Chu, Q., Ouyang, W., Li, H., Wang, X., Liu, B., & Yu, N. (2017). Online Multi-object Tracking Using CNN-Based Single Object Tracker with Spatial-Temporal Attention Mechanism.(IEEE) [paper](https://ieeexplore.ieee.org/document/8237780/)
+
+
