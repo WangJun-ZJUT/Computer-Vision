@@ -1,1 +1,93 @@
+#List of paper
 
+## 2020
+
+### Learning a Neural Solver for Multiple Object Tracking.(CVPR).[ paper ](https://arxiv.org/abs/1912.07515)[coda](https://link.zhihu.com/?target=https%3A//github.com/selflein/GraphNN-Multi-Object-Tracking)
+
+- 提出了一种基于信息传递网络（MPN）的求解器框架，将改进图形优化框架和特征提取这两个任务组合成统一的基于学习的求解器，该解释器可以：（1）学习目标特征；（2）通过对整个图从边到节点、节点到边的信息传递和时间感知信息传递学习得到无向图边的二元值y，以此求解解决方案，然后直接将图的最终划分转变为轨迹。
+
+
+### Han, R., Feng, W., Zhao, J., Niu, Z., Zhang, Y., Wan, L., & Wang, S. (2020). Complementary-View Multiple Human Tracking Complementary-View Multiple Human Tracking. (AAAI) .[paper]()
+
+
+- 研究了一对同时拍摄的俯视和水平视视频的多人跟踪问题。目标通过两个互补视图逐帧识别同一个人，并且进行跟踪。在本文中，使用外观和运动推理对相同视图中的数据相似性进行建模，使用外观和空间推理对不同视图的数据相似性进行建模，分别根据两个相似性分数求得交叉视图和交叉剪切的节点之间的相似性分数。
+
+
+## 2019
+### DeepMOT Xu, Y., Ban, Y., Alameda-Pineda, X., & Horaud, R. (2019). DeepMOT: A Differentiable Framework for Training Multiple Object Trackers(CVPR). [paper](https://link.zhihu.com/?target=http%3A//arxiv.org/abs/1906.06618) [coda]()
+
+- Deep MOT提出了将MOT中的评判指标多目标跟踪精度和精度（MOTA和MOTP）进行可微代理，通过深匈牙利网络直接优化MOT度量来训练深度MOT跟踪器。通过借助MOTA和MOTP指标，将其微分化得到了损失函数。其中要微分化就要将FP、FN、TP和ID Sw.等四个指标先微分化。
+
+
+### FMA Zhang, J., Zhou, S., Wang, J., & Huang, D. (2019). Frame-wise Motion and Appearance for Real-time Multiple Object Tracking.[paper](https://link.zhihu.com/?target=http%3A//arxiv.org/abs/1905.02292)
+
+- 这篇文章解决的是：因为MOT都是对单个object进行外观提取和关联，所以它的计算量会随着object的增加而增加。所以本文提出了一个深度神经网络（DNN），称为帧式运动与外观（FMA），来实现实时MOT。它的方法是通过帧运动与外观（FMA）计算两帧之间的帧运动场（FMF），这使得大量对象边界框之间的匹配非常快速可靠。在利用辅助信息修正不确定匹配的同时，将帧外观特征（FAF）与帧运动场（FMF）并行学习。就是说用FAF来协助基于FMF的对象关联。速度达到了25fps。（其实，FMF和FAF可理解为一个能获取外观信息和上下文信息的运动模型和
+能同时处理多个对象的外观模型）
+
+
+### FAMNet Chu, P., & Ling, H. (2019). FAMNet: Joint Learning of Feature, Affinity and Multi-dimensional Assignment for Online Multiple Object Tracking.[paper](https://arxiv.org/abs/1904.04989)
+
+- 设计了一个名为FAMNet的深层网络，对特征表示、亲和力模型和多维分配（MDA）进行细化。
+其中，特征子网被用来为每一帧上的候选者提取特征，之后，亲合子网估计所有关联假设的高阶亲合性，最后，将多目标跟踪（MOT）问题表示为多维分配（MDA）形式，其中，MDA子网络利用关联性进行全局优化，得到最优分配。
+
+### Tracking without bells and whistles。[paper](https://arxiv.org/pdf/1903.05625)  [coda](https://github.com/phil-bergmann/tracking_wo_bnw)
+
+### STRN Xu, J., Cao, Y., Zhang, Z., & Hu, H. (2019). Spatial-Temporal Relation Networks for Multi-Object Tracking. [paper](https://arxiv.org/abs/1904.11489)  
+
+- 提出了一个联合的框架，结合多种线索（外观信息，位置信息，Bbox之间的拓扑结构,跨帧的融合信息……）以一种端到端的方式进行相似性度量，从空间领域到时空领域拓展 object-object relation。有了这种关系网络的拓展，我们可以很好的编码 objects 和 tracklets 的外观和Bbox之间的拓扑结构。同时也可以适应基于 location 的位置信息。
+
+- 算法总览：通过时空关系网络，将上述提到的 appearance，location，topology cues，and aggregating informaton over time 都用于计算相似性得分。图 3 展示了相似性计算的整个过程。首先，首先用基础的深度网络，ResNet-50 来提取 appearance feature；然后，跨越时空的表观特征通过 Spatial-temproal relation module (STRM) 来进行推理，得到了空间增强的表达和时间增强的表达。虽然这两个增强后的特征，我们进一步的得到两种特征，通过将其进行组合，然后分别计算其余弦相似度。最终，我们组合 the relation feature 和 unary location feature, motion feature 作为tracklet-object pair 的表达。对应的，该相似性得分是由两层网络和sigmoid 函数得到的。
+
+- 和STAM的不同：
+
+	STAM
+
+	空间注意模型：如果某个点位于region之内，其值不变。如果位于background，其值乘以一个小于1的值，以此提高region的显著性。
+
+	时间注意力机制：学习得到一个时间注意力参数，在计算损失函数的时候，用这个参数对前几帧的正样本和负样本来配比，以此更新网络。
+
+	STRN
+
+	空间注意模型：在一张静态图片中，通过其他目标信息增强目标空间的信息表达。
+
+	时间注意模型：选取前10帧，通过学习得到的时间注意力权重，计算目标特征的加权平均值。
+
+###MOTS Voigtlaender, P., Krause, M., Osep, A., Luiten, J., Sekar, B. B. G., Geiger, A., & Leibe, B. (2019). MOTS: Multi-Object Tracking and Segmentation. [paper](https://arxiv.org/abs/1902.03604v1) [coda](https://github.com/VisualComputingInstitute/TrackR-CNN)
+
+- 主要讨论的问题：将多目标跟踪问题扩展到多目标跟踪与分割（MOTS）问题。
+
+- 创新点：
+（1）提出一个密集型像素标记的跟踪数据集（同时用于视频跟踪与分割的基于KITTI和MOTChallenge的数据集，使用半自动注释过程为两个现有跟踪数据集创建密集的像素级注释）所以说这个数据集是集合Ｂｂｏｘ和分割掩码的注释；
+（2）提出一种多目标跟踪的度量指标－MOTSA，MTSP，ｓMOTSA．
+（3）提出一种新的基线方法Track R-CNN，该方法联合处理检测、跟踪和分割于单一卷积网络
+
+
+### Towards Real-Time Multi-Object Tracking [paper](https://arxiv.org/abs/1909.12605)
+
+- 本文提出了一种MOT系统，将appearance embedding 模型合并到单个检测器中，也就是说，使用单个网络来同时输出检测结果和检测框的相应外观嵌入。这个模型被称为联合学习检测器和嵌入模型（JDE）。
+这样，该系统被表述为一个多任务学习问题：存在多个任务，即锚点分类，边界框回归和嵌入学习；并自动对单个损失进行加权。
+JDE是检测与嵌入的联合学习，在单次前向传播中同时输出目标的位置和外观嵌入。
+
+
+
+## 2018
+
+### TNT(TrackletNet Tracker) Wang, G., Wang, Y., Zhang, H., Gu, R., & Hwang, J.-N. (2018). Exploit the Connectivity: Multi-Object Tracking with TrackletNet.[paper](https://arxiv.org/abs/1811.07258)
+
+### DeepCC Ristani, E., & Tomasi, C. (2018). Features for Multi-Target Multi-Camera Tracking and Re-Identification.(IEEE) [paper](https://ieeexplore.ieee.org/document/8578730)
+
+### DAN(SST) Sun, S., Akhtar, N., Song, H., Mian, A., & Shah, M. (2018). Deep Affinity Network for Multiple Object Tracking, 13(9), 1–15. (IEEE) [paper](https://arxiv.org/abs/1810.11780) [coda](https://github.com/shijieS/SST)
+
+### MOTDT Long Chen, Haizhou Ai, Zijie Zhuang, Chong Shang, Real-time Multiple People Tracking with Deeply Learned Candidate Selection and Person Re-Identification.(ICME) [paper](https://arxiv.org/abs/1809.04427) [coda](https://github.com/longcw/MOTDT)
+
+## 2017
+
+### (DAN)Deep affinity network for multiple object tracking.[paper](https://arxiv.org/abs/1810.11780)
+
+
+
+
+### DeepSORT Wojke, N., Bewley, A., & Paulus, D. (2017). Simple Online and Realtime Tracking with a Deep Association Metric.[paper]() [coda]()
+
+
+### STAM(spatial- temporal attention mechanism) Chu, Q., Ouyang, W., Li, H., Wang, X., Liu, B., & Yu, N. (2017). Online Multi-object Tracking Using CNN-Based Single Object Tracker with Spatial-Temporal Attention Mechanism.(IEEE) [paper](https://ieeexplore.ieee.org/document/8237780/)
