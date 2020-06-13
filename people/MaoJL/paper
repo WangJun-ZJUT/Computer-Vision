@@ -1,3 +1,4 @@
+
 # List of paper
 
 ## Online
@@ -17,8 +18,6 @@
 ### 2019
 
 - mmMOT：Robust Multi-Modality Multi-Object Tracking.【ICCV】[paper ](https://arxiv.org/abs/1909.03850) [code](https://github.com/ZwwWayne/mmMOT)
-
-
 
 -  FAMNet：Joint Learning of Feature, Affinity and Multi-dimensional Assignment for Online Multiple Object Tracking.【ICCV】[paper](https://arxiv.org/abs/1904.04989)
 
@@ -42,7 +41,7 @@
 
 -  Features for Multi-Target Multi-Camera Tracking and Re-Identification.(IEEE) [paper](https://ieeexplore.ieee.org/document/8578730)
 
- -  DAN(SST)： Deep Affinity Network for Multiple Object Tracking, 13(9), 1–15. (IEEE) [paper](https://arxiv.org/abs/1810.11780) [coda](https://github.com/shijieS/SST)
+-  DAN(SST)： Deep Affinity Network for Multiple Object Tracking, 13(9), 1–15. (IEEE) [paper](https://arxiv.org/abs/1810.11780) [coda](https://github.com/shijieS/SST)
 
 - MOTDT： Real-time Multiple People Tracking with Deeply Learned Candidate Selection and Person Re-Identification.(ICME) [paper](https://arxiv.org/abs/1809.04427) [coda](https://github.com/longcw/MOTDT)
 
@@ -50,7 +49,6 @@
 
 -  DAN：Deep affinity network for multiple object tracking.[paper](https://arxiv.org/abs/1810.11780)
 
--  DeepSORT： Simple Online and Realtime Tracking with a Deep Association Metric.【
-ICIP】[paper](https://arxiv.org/abs/1703.07402) [code](https://github.com/nwojke/deep_sort)
+-  DeepSORT： Simple Online and Realtime Tracking with a Deep Association Metric.【ICIP】[paper](https://arxiv.org/abs/1703.07402) [code](https://github.com/nwojke/deep_sort)
 
 -  STAM：Online Multi-object Tracking Using CNN-Based Single Object Tracker with Spatial-Temporal Attention Mechanism.【ICCV】 [paper](https://ieeexplore.ieee.org/document/8237780/)
