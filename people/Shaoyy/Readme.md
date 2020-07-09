@@ -37,7 +37,6 @@ code: https://github.com/STVIR/pysot
 
 - **Ocean:** Zhipeng Zhang, Houwen Peng, Jianlong Fu, Bing Li, Junliang Xing, Weiming Hu. "Object-aware Anchor-free Tracking."
 code: https://github.com/researchmm/TracKit
-<br>
 
     使用了FCOS和DIMP的在线更新模块，介绍了一种目标感知的分类网络来加强目标形变较大时的分类问题。在VOT2018和VOT2019上精度与SiamRPN++略低，R和EAO有提高。GOT-10k上AO：0.611, SR0.5：0.721。
 
@@ -50,14 +49,13 @@ code: https://github.com/researchmm/TracKit
     - 并行的dilated卷积层：x轴和y轴上的stride不同。
     - 在线更新模块：没细说，参考DIMP。
     - 训练数据：Youtube-BB、ImageNetVID、ImageNetDET、GOT10k、COCO。加入GOT10k之后增加了训练样本的种类，EAO提升。
-<br>
+
 
 - **SATIN:** Peng Gao, Ruyue Yuan, Fei Wang, Liyi Xiao, Hamido Fujita, Yan Zhang. "Siamese Attentional Keypoint Network for High Performance Visual Tracking"
-<br>
+
 ![keypoint detection](paper_note/assert/SATIN_1.png)
 检测左上、右下、中间三个关键点的位置。
 
-<br>
 
 - **SiamKPN:** Qiang Li, Zekui Qin, Wenbo Zhang, and Wen Zheng. "Siamese Keypoint Prediction Network for Visual Object Tracking"
 ![framework](paper_note/assert/SiamKPN_1.png)
