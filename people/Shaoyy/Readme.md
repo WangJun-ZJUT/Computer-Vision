@@ -33,17 +33,34 @@ code: https://github.com/STVIR/pysot
 
 
 #### 2020
+**Anchor-free 系列**
+
 - **Ocean:** Zhipeng Zhang, Houwen Peng, Jianlong Fu, Bing Li, Junliang Xing, Weiming Hu. "Object-aware Anchor-free Tracking."
 code: https://github.com/researchmm/TracKit
+<br>
 
-使用了FCOS和DIMP的在线更新模块，介绍了一种目标感知的分类网络来加强目标形变较大时的分类问题。在VOT2018和VOT2019上精度与SiamRPN++略低，R和EAO有提高。GOT-10k上AO：0.611, SR0.5：0.721。
+    使用了FCOS和DIMP的在线更新模块，介绍了一种目标感知的分类网络来加强目标形变较大时的分类问题。在VOT2018和VOT2019上精度与SiamRPN++略低，R和EAO有提高。GOT-10k上AO：0.611, SR0.5：0.721。
 
-![classification](paper_note/assert/Ocean_1.png)
-- anchor-based tracker在训练过程中只训练了IoU大的框，所以IoU过小时，缺乏修复的能力。
-- Object-aware classification: 结合reg网络预测出来的包围框，对规则的采样网格进行空间上的偏移，然后预测类别。提高了分类网络对整体结构的感知能力。
+    ![classification](paper_note/assert/Ocean_1.png)
+    - anchor-based tracker在训练过程中只训练了IoU大的框，所以IoU过小时，缺乏修复的能力。
+    - Object-aware classification: 结合reg网络预测出来的包围框，对规则的采样网格进行空间上的偏移，然后预测类别。提高了分类网络对整体结构的感知能力。
 
-![classification](paper_note/assert/Ocean_2.png)
-- 特征：只用了backbone最后一个stage的特征，然后通过并行的dilated卷积层，最后把相关操作之后的特征线性加权。
-- 并行的dilated卷积层：x轴和y轴上的stride不同。
-- 在线更新模块：没细说，参考DIMP。
-- 训练数据：Youtube-BB、ImageNetVID、ImageNetDET、GOT10k、COCO。加入GOT10k之后增加了训练样本的种类，EAO提升。
+    ![classification](paper_note/assert/Ocean_2.png)
+    - 特征：只用了backbone最后一个stage的特征，然后通过并行的dilated卷积层，最后把相关操作之后的特征线性加权。
+    - 并行的dilated卷积层：x轴和y轴上的stride不同。
+    - 在线更新模块：没细说，参考DIMP。
+    - 训练数据：Youtube-BB、ImageNetVID、ImageNetDET、GOT10k、COCO。加入GOT10k之后增加了训练样本的种类，EAO提升。
+<br>
+
+- **SATIN:** Peng Gao, Ruyue Yuan, Fei Wang, Liyi Xiao, Hamido Fujita, Yan Zhang. "Siamese Attentional Keypoint Network for High Performance Visual Tracking"
+<br>
+![keypoint detection](paper_note/assert/SATIN_1.png)
+检测左上、右下、中间三个关键点的位置。
+
+<br>
+
+- **SiamKPN:** Qiang Li, Zekui Qin, Wenbo Zhang, and Wen Zheng. "Siamese Keypoint Prediction Network for Visual Object Tracking"
+![framework](paper_note/assert/SiamKPN_1.png)
+在级联阶段用不同方差的高斯分布监督学习，与固定方法的标签相比，更容易区分目标和干扰物。
+每个KPN头输出一个5通道的特征，预测keypoint、offsets、size。
+- 训练数据：Youtube-BB:GOT-10k:LaSOT:COCO = 4:2:2:1，每轮45万对target-search。
