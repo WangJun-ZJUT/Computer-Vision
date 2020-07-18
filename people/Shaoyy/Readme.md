@@ -17,6 +17,11 @@ code: https://github.com/MegviiDetection/video_analyst
 #### ICCV2019
 - **DiMP:** Goutam Bhat, Martin Danelljan, Luc Van Gool, Radu Timofte. "Learning Discriminative Model Prediction for Tracking."
 code: https://github.com/visionml/pytracking
+更新模块：
+    - model initializer：只用目标区域内的特征初始化模型权重，由一个卷积层和一个PrPooling层构成，生成4*4\*n的特征
+    - model optimizer：结合背景信息优化模型权重
+    - target model f尺寸：4*4
+    - 离线训练：视频序列中的随机样本进行训练（从某一帧及前面抽取3帧作为train set，该帧后面抽取三帧作为test set）
 - **UpdateNet:** Lichao Zhang, Abel Gonzalez-Garcia, Joost van de Weijer, Martin Danelljan, Fahad Shahbaz Khan. "Learning the Model Update for Siamese Trackers."
 code:https://github.com/zhanglichao/updatenet
 - **GradNet:** Peixia Li, Boyu Chen, Wanli Ouyang, Dong Wang, Xiaoyun Yang, Huchuan Lu. "GradNet: Gradient-Guided Network for Visual Object Tracking."(oral)
@@ -31,6 +36,16 @@ code: https://github.com/XinLi-zn/TADT
 - **SiamRPN++:** Bo Li, Wei Wu, Qiang Wang, Fangyi Zhang, Junliang Xing, Junjie Yan. "SiamRPN++: Evolution of Siamese Visual Tracking with Very Deep Networks."(oral)
 code: https://github.com/STVIR/pysot
 
+#### ECCV2018
+- **DaSiamRPN:**Zheng Zhu, Qiang Wang, Bo Li, Wei Wu3, Junjie Yan,and Weiming Hu. "Distractor-aware Siamese Networks for Visual
+Object Tracking"
+code: https://github.com/foolwood/DaSiamRPN
+关注跟踪器的鉴别能力。
+    1. 训练过程中，正样本种类不够，导致泛化能力不够强；
+    2. 难例负样本过于简单，缺乏语义信息。
+解决方式：
+    1. 增加正样本种类的多样性。VID20类，Youtube-BB30类，这些种类远远不够，所以加入DET和COCO数据。
+    2. 图像中背景占了较大比重，所以负样本经常是非语义信息。构造难例负样本，既可能是来自同一类别，有可能来自不同类别。在训练时加入干扰物和候选区域相似度的比较。
 
 #### 2020
 **Anchor-free 系列**
@@ -51,14 +66,16 @@ code: https://github.com/researchmm/TracKit
     - 训练数据：Youtube-BB、ImageNetVID、ImageNetDET、GOT10k、COCO。加入GOT10k之后增加了训练样本的种类，EAO提升。
 
 
-- **SATIN:** Peng Gao, Ruyue Yuan, Fei Wang, Liyi Xiao, Hamido Fujita, Yan Zhang. "Siamese Attentional Keypoint Network for High Performance Visual Tracking"
 
+- **SATIN:** Peng Gao, Ruyue Yuan, Fei Wang, Liyi Xiao, Hamido Fujita, Yan Zhang. "Siamese Attentional Keypoint Network for High Performance Visual Tracking"
 ![keypoint detection](paper_note/assert/SATIN_1.png)
-检测左上、右下、中间三个关键点的位置。
+
+    检测左上、右下、中间三个关键点的位置。
+
 
 
 - **SiamKPN:** Qiang Li, Zekui Qin, Wenbo Zhang, and Wen Zheng. "Siamese Keypoint Prediction Network for Visual Object Tracking"
 ![framework](paper_note/assert/SiamKPN_1.png)
-在级联阶段用不同方差的高斯分布监督学习，与固定方法的标签相比，更容易区分目标和干扰物。
-每个KPN头输出一个5通道的特征，预测keypoint、offsets、size。
-- 训练数据：Youtube-BB:GOT-10k:LaSOT:COCO = 4:2:2:1，每轮45万对target-search。
+    - 在级联阶段用不同方差的高斯分布监督学习，与固定方法的标签相比，更容易区分目标和干扰物。
+    - 每个KPN头输出一个5通道的特征，预测keypoint、offsets、size。
+    - 训练数据：Youtube-BB:GOT-10k:LaSOT:COCO = 4:2:2:1，每轮45万对target-search。
