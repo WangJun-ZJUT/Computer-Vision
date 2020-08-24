@@ -6,6 +6,15 @@ code: https://github.com/visionml/pytracking
 - **SiamAttn:** Yuechen Yu, Yilei Xiong, Weilin Huang, Matthew R. Scott. Deformable Siamese Attention Networks for Visual Object Tracking.
 - **SiamBAN:** Zedu Chen, Bineng Zhong, Guorong Li, Shengping Zhang, Rongrong Ji. Siamese Box Adaptive Network for Visual Tracking.
 code: https://github.com/hqucv/siamban
+- Mingjie Sun,  Jimin Xiao,  Eng Gee Lim, Bingfeng Zhang, Yao Zhao. Fast Template Matching and Update for Video Object Tracking and Segmentation.
+使用RL进行决策：1.使用IOU-based match或者appearance-based match；2.是否用当前帧更新target template。
+- Kenan Dai, Yunhua Zhang, Dong Wang,  Jianhua Li, Huchuan Lu, Xiaoyun Yang. High-Performance Long-Term Tracking with Meta-Updater.
+用元学习集成集合、判别、外观信息，用LSTM挖掘序列信息，指导跟踪器的更新。
+code: https://github.com/Daikenan/LTMU
+
+- **CGACD**: Fei Du, Peng Liu, Wei Zhao, Xianglong Tang. Correlation-Guided Attention for Corner Detection Based Visual Tracking.
+![](paper_note/assert/CGACD_1.png)
+一个two-stage的检测器，先用Siamese回归出一个粗略的包围框，然后用角点进行精确定位。角点检测的基础上加入了互相关引导的通道注意力和空间注意力。
 
 
 #### AAAI2020
@@ -37,7 +46,7 @@ code: https://github.com/XinLi-zn/TADT
 code: https://github.com/STVIR/pysot
 
 #### ECCV2018
-- **DaSiamRPN:**Zheng Zhu, Qiang Wang, Bo Li, Wei Wu3, Junjie Yan,and Weiming Hu. "Distractor-aware Siamese Networks for Visual
+- **DaSiamRPN:** Zheng Zhu, Qiang Wang, Bo Li, Wei Wu3, Junjie Yan,and Weiming Hu. "Distractor-aware Siamese Networks for Visual
 Object Tracking"
 code: https://github.com/foolwood/DaSiamRPN
 关注跟踪器的鉴别能力。
