@@ -1,4 +1,17 @@
 ## List of paper
+#### ECCV2020
+- Goutam Bhat, Martin Danelljan, Luc Van Gool, Radu Timofte. Know Your Surroundings: Exploiting Scene Information for Object Tracking. 
+
+- **CLNet:** Xingping Dong, Jianbing Shen, Ling Shao, Fatih Porikli. A Compact Latent Network for Fast
+Adjusting Siamese Trackers.
+code: https://github.com/xingpingdong/CLNet-tracking
+在SiamRPN++的基础上，加入sequence-specific信息调整离线训练的模型，达到discrimination能力的提高。只在第一帧对基础模型进行调整，而非在线更新，因此减少了time cost。
+![The framework of CLNet](paper_note/assert/CLNet_1.png)
+在测试时，CLNet模块用第一帧图片来计算正样本和负样本的方差和均值，用方差和均值计算权重，微调SiamRPN++最后一层的权重，使模型适合特定序列。
+
+- **PG-Net:** Bingyan Liao, Chenye Wang, Yayun Wang, Yaonong Wang, Jun Yin. Pixel to Global Matching Network for Visual Tracking.
+
+
 #### CVPR2020
 - **Retina-MAML:** Guangting Wang, Chong Luo, Xiaoyan Sun, Zhiwei Xiong, Wenjun Zeng. Tracking by Instance Detection: A Meta-Learning Approach. (oral)
 - **PrDiMP:** Martin Danelljan, Luc Van Gool, Radu Timofte. Probabilistic Regression for Visual Tracking.
