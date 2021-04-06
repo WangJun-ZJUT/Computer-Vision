@@ -1,4 +1,11 @@
 ## List of paper
+
+#### CVPR2021
+- Xin Chen1, Bin Yan1, Jiawen Zhu, Dong Wang, Xiaoyun Yang and Huchuan Lu. Transformer Tracking. 
+paper: https://arxiv.org/pdf/2103.15436
+code: https://github.com/chenxindlut/TransT
+Transformer结合目标跟踪，做self attention和cross attention。cross attention代替互相关操作，对template和search分支做匹配。
+
 #### ECCV2020
 - Goutam Bhat, Martin Danelljan, Luc Van Gool, Radu Timofte. Know Your Surroundings: Exploiting Scene Information for Object Tracking. 
 
