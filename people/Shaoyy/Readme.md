@@ -3,8 +3,11 @@
 #### CVPR2021
 - Xin Chen1, Bin Yan1, Jiawen Zhu, Dong Wang, Xiaoyun Yang and Huchuan Lu. Transformer Tracking. 
 paper: https://arxiv.org/pdf/2103.15436
-code: https://github.com/chenxindlut/TransT
-Transformer结合目标跟踪，做self attention和cross attention。cross attention代替互相关操作，对template和search分支做匹配。
+code: https://github.com/chenxin-dlut/TransT
+Transformer结合目标跟踪，做self attention和cross attention。self attention作用于backbone的输出特征，做自我特征的增强。cross attention代替互相关操作，对template和search分支做匹配。速度：50fps on GPU。
+![Framework of TransT](paper_note/assert/TransT_1.png)
+![illustration of ECA and CFA](paper_note/assert/TransT_2.png)
+
 
 #### ECCV2020
 - Goutam Bhat, Martin Danelljan, Luc Van Gool, Radu Timofte. Know Your Surroundings: Exploiting Scene Information for Object Tracking. 
