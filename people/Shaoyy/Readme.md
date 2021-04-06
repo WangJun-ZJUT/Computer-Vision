@@ -1,12 +1,20 @@
 ## List of paper
 
 #### CVPR2021
-- Xin Chen1, Bin Yan1, Jiawen Zhu, Dong Wang, Xiaoyun Yang and Huchuan Lu. Transformer Tracking. 
-paper: https://arxiv.org/pdf/2103.15436
-code: https://github.com/chenxin-dlut/TransT
+- Xin Chen, Bin Yan, Jiawen Zhu, Dong Wang, Xiaoyun Yang and Huchuan Lu. Transformer Tracking.   
+paper: https://arxiv.org/pdf/2103.15436  
+code: https://github.com/chenxin-dlut/TransT  
 Transformer结合目标跟踪，做self attention和cross attention。self attention作用于backbone的输出特征，做自我特征的增强。cross attention代替互相关操作，对template和search分支做匹配。速度：50fps on GPU。
-![Framework of TransT](paper_note/assert/TransT_1.png)
-![illustration of ECA and CFA](paper_note/assert/TransT_2.png)
+![Framework of TransT](paper_note/assert/TransT_1.png)  
+![illustration of ECA and CFA](paper_note/assert/TransT_2.png)  
+
+- Ning Wang, Wengang Zhou, Jie Wang, Houqiang Li. Transformer Meets Tracker: Exploiting Temporal Context for Robust Visual Tracking. 
+paper: https://arxiv.org/pdf/2103.11681.pdf  
+code: https://github.com/594422814/TransformerTrack  
+分解了Transformer中的Encoder和Decoder模块，encoder做模板的特征增强（包括多帧template的融合），decoder负责template和search之间的信息传递。  
+![Framework of TransformerTracker](/paper_note/assert/TransformerTracker_1.png)  
+![illstration of encoder and decoder](paper_note/assert/TransformerTracker_2.png)
+
 
 
 #### ECCV2020
